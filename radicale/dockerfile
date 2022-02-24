@@ -1,0 +1,9 @@
+FROM python:latest
+
+WORKDIR /
+
+COPY config users requirements.txt ./
+
+RUN pip install -r requirements.txt
+
+CMD [ "python", "-m", "radicale", "--config", "config" ]
