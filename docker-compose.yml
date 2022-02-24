@@ -1,0 +1,12 @@
+version: "3.9"
+services:
+  # iron-cake:
+    # build: ./iron-cake
+    # ports:
+      # - "8000:8000"
+  jbb:
+    build: ./jbb
+  # radicale:
+    # build: ./radicale
+    # ports:
+      # - "5232:5232"
