@@ -36,7 +36,17 @@ services:
       - ./jbb/media:/jbb.py/media
     restart: unless-stopped
 
-  # radicale:
-    # build: ./radicale
-    # ports:
-      # - "5232:5232"
+  # merossd:
+  #   container_name: merossd
+  #   build: ./merossd
+  #   restart: unless-stopped
+
+  radicale:
+    container_name: radicale
+    build: ./radicale
+    ports:
+      - "5232:5232"
+    volumes:
+      - ~/.local/share/radicale:/radicale
+      - ~/.gitconfig:/etc/gitconfig
+    restart: unless-stopped

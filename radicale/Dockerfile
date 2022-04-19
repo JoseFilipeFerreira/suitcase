@@ -1,8 +1,6 @@
 FROM python:latest
 
-WORKDIR /
-
-COPY config users requirements.txt ./
+COPY config requirements.txt ./
 
 RUN pip install -r requirements.txt
 

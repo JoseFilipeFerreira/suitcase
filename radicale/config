@@ -1,7 +1,6 @@
 [auth]
 type = htpasswd
-htpasswd_filename = ~/repos/calme/users
-# encryption method used in the htpasswd file
+htpasswd_filename = /radicale/users
 htpasswd_encryption = md5
 delay=1
 
@@ -11,5 +10,5 @@ max_connections = 5
 max_content_length = 100000000
 
 [storage]
-filesystem_folder = ~/repos/calme/collections
+filesystem_folder = /radicale/collections
 hook = git add -A && (git diff --cached --quiet || git commit -m "Changes by "%(user)s)
