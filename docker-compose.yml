@@ -1,13 +1,42 @@
 version: "3.9"
 services:
-  # iron-cake:
-    # build: ./iron-cake
-    # ports:
-      # - "8000:8000"
-  jbb:
-    build: ./jbb
+  plex:
+    image: lscr.io/linuxserver/plex
+    container_name: plex
+    network_mode: host
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - VERSION=docker
+    volumes:
+      - /mnt/media/plex/config:/config
+      - /mnt/media:/media
+    restart: unless-stopped
 
-  radicale:
-    build: ./radicale
+  iron-cake:
+    container_name: iron-cake
+    build: ./iron-cake
     ports:
-      - "5232:5232"
+      - "8000:8000"
+    volumes:
+      - /mnt/media/anime:/iron-cake/anime
+      - /mnt/media/movies:/iron-cake/movies
+      - /mnt/media/series:/iron-cake/series
+      - /mnt/media/music:/iron-cake/music
+      - /mnt/media/thumb:/iron-cake/thumb
+      - ~/.local/share/wallpapers:/iron-cake/walls
+      - ~/share:/iron-cake/share
+    restart: unless-stopped
+
+  jbb:
+    container_name: jbb
+    build: ./jbb
+    volumes:
+      - ./jbb/db:/jbb.py/db
+      - ./jbb/media:/jbb.py/media
+    restart: unless-stopped
+
+  # radicale:
+    # build: ./radicale
+    # ports:
+      # - "5232:5232"
