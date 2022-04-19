@@ -1,15 +1,11 @@
 FROM python:latest
 
-WORKDIR /
+RUN git clone https://github.com/JoseFilipeFerreira/jbb.py
 
-RUN git clone https://github.com/JoseFilipeFerreira/JBB.py
-
-WORKDIR /JBB.py
+WORKDIR /jbb.py
 
 RUN pip install -r requirements.txt
 
 COPY config.yaml client_secret.json credentials_calendar.json ./
-ADD media media
-ADD db db
 
 CMD [ "python", "bot.py" ]
