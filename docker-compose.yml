@@ -36,10 +36,12 @@ services:
       - ./jbb/media:/jbb.py/media
     restart: unless-stopped
 
-  # merossd:
-  #   container_name: merossd
-  #   build: ./merossd
-  #   restart: unless-stopped
+  merossd:
+    container_name: merossd
+    build: ./merossd
+    ports:
+      - "4200:4200"
+    restart: unless-stopped
 
   radicale:
     container_name: radicale
