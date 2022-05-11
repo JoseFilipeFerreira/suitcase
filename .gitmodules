@@ -1,3 +1,6 @@
 [submodule "jbb.py"]
 	path = jbb.py
 	url = git@github.com:JoseFilipeFerreira/jbb.py.git
+[submodule "iron-cake"]
+	path = iron-cake
+	url = git@github.com:JoseFilipeFerreira/iron-cake.git
