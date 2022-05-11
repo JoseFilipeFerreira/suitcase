@@ -1,0 +1,3 @@
+[submodule "jbb.py"]
+	path = jbb.py
+	url = git@github.com:JoseFilipeFerreira/jbb.py.git
