@@ -1,7 +1,8 @@
 FROM python:3.9
 
-COPY config requirements.txt ./
-
+COPY requirements.txt .
 RUN pip install -r requirements.txt
+
+COPY config .
 
 CMD [ "python", "-m", "radicale", "--config", "config" ]
