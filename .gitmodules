@@ -4,3 +4,6 @@
 [submodule "iron-cake"]
 	path = iron-cake
 	url = git@github.com:JoseFilipeFerreira/iron-cake.git
+[submodule "merossd"]
+	path = merossd
+	url = git@github.com:JoseFilipeFerreira/merossd.git
