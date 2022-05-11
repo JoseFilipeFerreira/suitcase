@@ -19,21 +19,22 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - /mnt/media/anime:/iron-cake/anime
-      - /mnt/media/movies:/iron-cake/movies
-      - /mnt/media/series:/iron-cake/series
-      - /mnt/media/music:/iron-cake/music
-      - /mnt/media/thumb:/iron-cake/thumb
-      - ~/.local/share/wallpapers:/iron-cake/walls
-      - ~/share:/iron-cake/share
+      - /mnt/media/anime:/anime
+      - /mnt/media/movies:/movies
+      - /mnt/media/series:/series
+      - /mnt/media/music:/music
+      - ~/.local/share/iron-cake-thumb:/thumb
+      - ~/.local/share/wallpapers:/walls
+      - ~/share:/share
     restart: unless-stopped
 
   jbb:
     container_name: jbb
-    build: ./jbb
+    build: ./jbb.py
     volumes:
-      - ./jbb/db:/jbb.py/db
-      - ./jbb/media:/jbb.py/media
+      - ./jbb.py/db:/db
+      - ./jbb.py/media:/media
+      - ./jbb.py/music:/music
     restart: unless-stopped
 
   merossd:
@@ -51,4 +52,13 @@ services:
     volumes:
       - ~/.local/share/radicale:/radicale
       - ~/.gitconfig:/etc/gitconfig
+    restart: unless-stopped
+
+  rss-bridge:
+    container_name: rss-bridge
+    image: rssbridge/rss-bridge:latest
+    volumes:
+      - ./rss-bridge:/config
+    ports:
+      - "3000:80"
     restart: unless-stopped
