@@ -2,7 +2,7 @@
 
 Launch all my services with Docker
 
-* [Plex Server](https://www.plex.tv/)
+* [Jellyfin](https://jellyfin.org/)
 * [Iron-Cake](https://github.com/JoseFilipeFerreira/iron-cake): Simple Webserver
 * [JBB.py](https://github.com/josefilipeferreira/JBB.py): Discord bot
 * [Radicale](https://radicale.org/v3.html): CalDav and CardDav Server
