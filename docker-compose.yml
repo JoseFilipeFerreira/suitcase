@@ -1,4 +1,5 @@
 version: "3.9"
+
 services:
   jellyfin:
     image: jellyfin/jellyfin
@@ -11,8 +12,8 @@ services:
       - "989"
     network_mode: host
     volumes:
-      - /mnt/media/jellyfin/config:/config
-      - /mnt/media/jellyfin/cache:/cache
+      - ~/suitcase-storage/jellyfin/config:/config
+      - ~/suitcase-storage/jellyfin/cache:/cache
       - /mnt/media:/media
     devices:
       - /dev/dri/renderD128:/dev/dri/renderD128
@@ -29,7 +30,7 @@ services:
       - /mnt/media/movies:/movies
       - /mnt/media/series:/series
       - /mnt/media/music:/music
-      - ~/.local/share/iron-cake-thumb:/thumb
+      - ~/suitcase-storage/iron-cake/thumb:/thumb
       - ~/.local/share/wallpapers:/walls
       - ~/share:/share
     restart: unless-stopped
@@ -56,7 +57,7 @@ services:
     ports:
       - "5232:5232"
     volumes:
-      - ~/.local/share/radicale:/radicale
+      - ~/suitcase-storage/radicale:/radicale
       - ~/.gitconfig:/etc/gitconfig
     restart: unless-stopped
 
