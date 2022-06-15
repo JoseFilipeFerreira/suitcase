@@ -2,38 +2,24 @@
 
 Launch all my services with Docker
 
-* [Jellyfin](https://jellyfin.org/)
-* [Iron-Cake](https://github.com/JoseFilipeFerreira/iron-cake): Simple Webserver
-* [JBB.py](https://github.com/josefilipeferreira/JBB.py): Discord bot
+
+## :cloud: My Own Botnet
 * [Radicale](https://radicale.org/v3.html): CalDav and CardDav Server
 * [Merossd](https://github.com/josefilipeferreira/merossd): Control meross lights
+* [HomeAssistant](): Soon:tm:
+* [Iron-Cake](https://github.com/JoseFilipeFerreira/iron-cake): Simple Webserver
+
+
+# :robot: Bots
+* [JBB.py](https://github.com/josefilipeferreira/JBB.py): MiEI Discord bot
+
+## :movie_camera: Movies & Series
+* [Jellyfin](https://jellyfin.org/): Media System
+* [Jackett](https://github.com/Jackett/Jackett): Website scrapper for media
+* [Sonarr](https://sonarr.tv/): Download and Manage Series
+* [Radarr](https://radarr.video/): Download and Manage Movies
+* [Bazarr](https://www.bazarr.media/): Download and Manage Subtitles
+
+## :repeat: Misc
+* [qbittorrent](https://www.qbittorrent.org/): torrent client
 * [rss-bridge](https://github.com/RSS-Bridge/rss-bridge): RSS feed generator for websites
-
-
-## Nginx configuration
-
-```
-server {
-        server_name jff.sh;
-
-        listen 80;
-
-        location / {
-                proxy_pass http://127.0.0.1:8000/;
-        }
-
-        location /radicale/ {
-                proxy_pass        http://localhost:5232/;
-                proxy_set_header  X-Script-Name /radicale;
-                proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
-                proxy_set_header  Host $http_host;
-                proxy_pass_header Authorization;
-        }
-
-        location /rss-bridge/ {
-                proxy_pass        http://localhost:3000/;
-        }
-
-
-}
-```

@@ -1,6 +1,35 @@
 version: "3.9"
 
+# qbittorrent 8090 6881
+# iron-cake   8000
+# merossd     4200
+# radicale    5232
+# rss-bridge  3000
+# jacket      9117
+# sonarr      8989
+# radarr      7878
+# bazarr      6767
 services:
+  qbittorrent:
+    image: linuxserver/qbittorrent
+    container_name: qbittorrent
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/London
+      - WEBUI_PORT=8090
+    volumes:
+      - ./qbittorrent/dracula:/dracula
+      - /mnt/media:/media
+      - ~/dl:/downloads
+      - ~/suitcase-storage/qbittorrent/autodl:/autodl
+      - ~/suitcase-storage/qbittorrent/config:/config
+    ports:
+      - 8090:8090
+      - 6881:6881
+      - 6881:6881/udp
+    restart: unless-stopped
+
   jellyfin:
     image: jellyfin/jellyfin
     container_name: jellyfin
@@ -12,9 +41,9 @@ services:
       - "989"
     network_mode: host
     volumes:
-      - ~/suitcase-storage/jellyfin/config:/config
-      - ~/suitcase-storage/jellyfin/cache:/cache
       - /mnt/media:/media
+      - ~/suitcase-storage/jellyfin/cache:/cache
+      - ~/suitcase-storage/jellyfin/config:/config
     devices:
       - /dev/dri/renderD128:/dev/dri/renderD128
       - /dev/dri/card0:/dev/dri/card0
@@ -28,20 +57,20 @@ services:
     volumes:
       - /mnt/media/anime:/anime
       - /mnt/media/movies:/movies
-      - /mnt/media/series:/series
       - /mnt/media/music:/music
-      - ~/suitcase-storage/iron-cake/thumb:/thumb
+      - /mnt/media/series:/series
       - ~/.local/share/wallpapers:/walls
       - ~/share:/share
+      - ~/suitcase-storage/iron-cake/thumb:/thumb
     restart: unless-stopped
 
   jbb:
     container_name: jbb
     build: ./jbb.py
     volumes:
-      - ./jbb.py/db:/db
-      - ./jbb.py/media:/media
-      - ./jbb.py/music:/music
+      - ~/suitcase-storage/jbb/db:/db
+      - ~/suitcase-storage/jbb/media:/media
+      - ~/suitcase-storage/jbb/music:/music
     restart: unless-stopped
 
   merossd:
@@ -57,15 +86,73 @@ services:
     ports:
       - "5232:5232"
     volumes:
-      - ~/suitcase-storage/radicale:/radicale
       - ~/.gitconfig:/etc/gitconfig
+      - ~/suitcase-storage/radicale:/radicale
     restart: unless-stopped
 
   rss-bridge:
     container_name: rss-bridge
     image: rssbridge/rss-bridge:latest
-    volumes:
-      - ./rss-bridge:/config
     ports:
       - "3000:80"
+    restart: unless-stopped
+
+  jackett:
+    image: linuxserver/jackett
+    container_name: jackett
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/London
+      - AUTO_UPDATE=true #optional
+    volumes:
+      - ~/dl:/downloads
+      - ~/suitcase-storage/jackett/config:/config
+    ports:
+      - 9117:9117
+    restart: unless-stopped
+
+  sonarr:
+    image: linuxserver/sonarr
+    container_name: sonarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=PST
+      - UMASK_SET=022 #optional
+    volumes:
+      - /mnt/media:/media
+      - ~/dl:/downloads
+      - ~/suitcase-storage/sonarr/config:/config
+    ports:
+      - 8989:8989
+    restart: unless-stopped
+
+  radarr:
+    image: linuxserver/radarr
+    container_name: radarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/London
+    volumes:
+      - /mnt/media/movies:/movies
+      - ~/dl:/downloads
+      - ~/suitcase-storage/radarr/config:/config
+    ports:
+      - 7878:7878
+    restart: unless-stopped
+
+  bazarr:
+    image: linuxserver/bazarr
+    container_name: bazarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/London
+    volumes:
+      - /mnt/media:/media
+      - ~/suitcase-storage/bazarr/config:/config
+    ports:
+      - 6767:6767
     restart: unless-stopped
