@@ -7,3 +7,6 @@
 [submodule "merossd"]
 	path = merossd
 	url = git@github.com:JoseFilipeFerreira/merossd.git
+[submodule "qbittorrent/dracula"]
+	path = qbittorrent/dracula
+	url = https://github.com/dracula/qbittorrent.git
