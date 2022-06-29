@@ -2,6 +2,7 @@ version: "3.9"
 
 # qbittorrent 8090 6881
 # iron-cake   8000
+# openbooks   9090
 # merossd     4200
 # radicale    5232
 # rss-bridge  3000
@@ -155,4 +156,18 @@ services:
       - ~/suitcase-storage/bazarr/config:/config
     ports:
       - 6767:6767
+    restart: unless-stopped
+
+  openbooks:
+    image: evanbuss/openbooks
+    container_name: openbooks
+    command: --persist
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - BASE_PATH=/openbooks/
+    volumes:
+      - /mnt/media/books:/books
+    ports:
+      - 9090:80
     restart: unless-stopped

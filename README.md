@@ -13,12 +13,13 @@ Launch all my services with Docker
 # :robot: Bots
 * [JBB.py](https://github.com/josefilipeferreira/JBB.py): MiEI Discord bot
 
-## :movie_camera: Movies & Series
+## :movie_camera: Movies, Series & More
 * [Jellyfin](https://jellyfin.org/): Media System
 * [Jackett](https://github.com/Jackett/Jackett): Website scrapper for media
 * [Sonarr](https://sonarr.tv/): Download and Manage Series
 * [Radarr](https://radarr.video/): Download and Manage Movies
 * [Bazarr](https://www.bazarr.media/): Download and Manage Subtitles
+* [OpenBooks](https://github.com/evan-buss/openbooks): Download Books
 
 ## :repeat: Misc
 * [qbittorrent](https://www.qbittorrent.org/): torrent client
