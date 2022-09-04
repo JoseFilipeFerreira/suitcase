@@ -11,6 +11,7 @@ version: "3.9"
 # radarr      7878
 # bazarr      6767
 # photoprism  2342
+# gotify      2323
 
 services:
   qbittorrent:
@@ -54,8 +55,8 @@ services:
     restart: unless-stopped
 
   iron-cake:
+    image: josefilipeferreira/iron-cake:master
     container_name: iron-cake
-    build: ./iron-cake
     ports:
       - "8000:8000"
     volumes:
@@ -69,19 +70,22 @@ services:
     restart: unless-stopped
 
   jbb:
+    image: josefilipeferreira/jbb.py:master
     container_name: jbb
-    build: ./jbb.py
     volumes:
+      - ~/suitcase-storage/jbb/config.yaml:/config.yaml
       - ~/suitcase-storage/jbb/db:/db
       - ~/suitcase-storage/jbb/media:/media
       - ~/suitcase-storage/jbb/music:/music
     restart: unless-stopped
 
   merossd:
+    image: josefilipeferreira/merossd:master
     container_name: merossd
-    build: ./merossd
     ports:
       - "4200:4200"
+    volumes:
+      - ~/suitcase-storage/merossd/config.yaml:/config.yaml
     restart: unless-stopped
 
   radicale:
@@ -95,8 +99,8 @@ services:
     restart: unless-stopped
 
   rss-bridge:
-    container_name: rss-bridge
     image: rssbridge/rss-bridge:latest
+    container_name: rss-bridge
     ports:
       - "3000:80"
     restart: unless-stopped
@@ -177,6 +181,7 @@ services:
 
   photoprism:
     image: photoprism/photoprism:latest
+    container_name: photoprism
     depends_on:
       - mariadb
     restart: unless-stopped
@@ -211,9 +216,9 @@ services:
       PHOTOPRISM_DATABASE_NAME: "photoprism"         # MariaDB or MySQL database schema name
       PHOTOPRISM_DATABASE_USER: "photoprism"         # MariaDB or MySQL database user name
       PHOTOPRISM_DATABASE_PASSWORD: "insecure"       # MariaDB or MySQL database user password
-      PHOTOPRISM_SITE_CAPTION: "AI-Powered Photos App"
-      PHOTOPRISM_SITE_DESCRIPTION: ""                # meta site description
-      PHOTOPRISM_SITE_AUTHOR: ""                     # meta site author
+      PHOTOPRISM_SITE_CAPTION: "Life Adventures"
+      PHOTOPRISM_SITE_DESCRIPTION: "All My Adventures in one place"                # meta site description
+      PHOTOPRISM_SITE_AUTHOR: "jff"                     # meta site author
       ## Run/install on first startup (options: update gpu tensorflow davfs clitools clean):
       # PHOTOPRISM_INIT: "gpu tensorflow"
       ## Hardware Video Transcoding (for sponsors only due to high maintenance and support costs):
@@ -245,6 +250,7 @@ services:
   mariadb:
     restart: unless-stopped
     image: mariadb:10.8
+    container_name: mariadb
     security_opt:
       - seccomp:unconfined
       - apparmor:unconfined
@@ -258,3 +264,32 @@ services:
       MARIADB_USER: "photoprism"
       MARIADB_PASSWORD: "insecure"
       MARIADB_ROOT_PASSWORD: "insecure"
+
+  gotify:
+    image: gotify/server
+    container_name: gotify
+    ports:
+      - 2323:80
+    environment:
+      - GOTIFY_DEFAULTUSER_PASS=insecure
+    volumes:
+      - ~/suitcase-storage/gotify/data:/app/data
+
+  watchtower:
+    image: containrrr/watchtower
+    container_name: watchtower
+    environment:
+      - WATCHTOWER_POLL_INTERVAL = 43200
+      - WATCHTOWER_INCLUDE_STOPPED = true
+      - WATCHTOWER_REVIVE_STOPPED = true
+      - WATCHTOWER_CLEANUP = true
+      - WATCHTOWER_NO_STARTUP_MESSAGE = false
+      - WATCHTOWER_NOTIFICATIONS=gotify
+      - WATCHTOWER_NOTIFICATION_GOTIFY_URL=https://jff.sh/gotify/
+      - WATCHTOWER_NOTIFICATION_GOTIFY_TOKEN=/gotify_token
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /etc/localtime:/etc/localtime:ro
+      - ~/suitcase-storage/watchtower/gotify_token:/gotify_token
+    labels:
+      - com.centurylinklabs.watchtower.enable = true
