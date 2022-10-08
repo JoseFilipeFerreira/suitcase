@@ -12,7 +12,6 @@ Launch all my services with Docker
 ## :movie_camera: Movies, Photos & Books
 * [Jellyfin](https://jellyfin.org/): Media System
 * [photoprism](https://photoprism.app/): AI-Powered Photos App
-* [OpenBooks](https://github.com/evan-buss/openbooks): Download Books
 
 ## :arrow_down_small: Media Download
 * [qbittorrent](https://www.qbittorrent.org/): torrent client
