@@ -5,9 +5,10 @@ version: "3.9"
 # merossd     4200
 # radicale    5232
 # rss-bridge  3000
-# jackett      9117
+# prowlarr    9696
 # sonarr      8989
 # radarr      7878
+# readarr     8787
 # bazarr      6767
 # photoprism  2342
 # gotify      2323
@@ -105,19 +106,28 @@ services:
       - "3000:80"
     restart: unless-stopped
 
-  jackett:
-    image: linuxserver/jackett
-    container_name: jackett
+  flaresolverr:
+    image: flaresolverr/flaresolverr
+    container_name: flaresolverr
+    environment:
+      - TZ=Europe/London
+    ports:
+      - 8191:8191
+    restart: unless-stopped
+
+  prowlarr:
+    image: linuxserver/prowlarr:develop
+    container_name: prowlarr
     environment:
       - PUID=1000
       - PGID=1000
       - TZ=Europe/London
-      - AUTO_UPDATE=true #optional
     volumes:
-      - ~/dl:/downloads
-      - ~/suitcase-storage/jackett/config:/config
+      - ~/suitcase-storage/prowlarr/config:/config
     ports:
-      - 9117:9117
+      - 9696:9696
+    depends_on:
+      - flaresolverr
     restart: unless-stopped
 
   sonarr:
@@ -135,7 +145,7 @@ services:
     ports:
       - 8989:8989
     depends_on:
-      - jackett
+      - prowlarr
       - qbittorrent
     restart: unless-stopped
 
@@ -153,7 +163,7 @@ services:
     ports:
       - 7878:7878
     depends_on:
-      - jackett
+      - prowlarr
       - qbittorrent
     restart: unless-stopped
 
@@ -170,6 +180,25 @@ services:
     ports:
       - 6767:6767
     restart: unless-stopped
+
+  readarr:
+    image: linuxserver/readarr:develop
+    container_name: readarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/London
+    volumes:
+      - /mnt/media/books:/books
+      - ~/dl:/downloads
+      - ~/suitcase-storage/readarr/config:/config
+    ports:
+      - 8787:8787
+    depends_on:
+      - prowlarr
+      - qbittorrent
+    restart: unless-stopped
+
 
   photoprism:
     image: photoprism/photoprism:latest
