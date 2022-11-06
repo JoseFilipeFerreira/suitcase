@@ -1,6 +1,6 @@
 version: "3.9"
 
-# qbittorrent 8090 6881
+# qbittorrent 8090 65432
 # iron-cake   8000
 # merossd     4200
 # radicale    5232
@@ -8,7 +8,6 @@ version: "3.9"
 # prowlarr    9696
 # sonarr      8989
 # radarr      7878
-# readarr     8787
 # bazarr      6767
 # photoprism  2342
 # gotify      2323
@@ -30,8 +29,8 @@ services:
       - ~/suitcase-storage/qbittorrent/config:/config
     ports:
       - 8090:8090
-      - 6881:6881
-      - 6881:6881/udp
+      - 65432:65432
+      - 65432:65432/udp
     restart: unless-stopped
 
   jellyfin:
@@ -167,6 +166,40 @@ services:
       - qbittorrent
     restart: unless-stopped
 
+  calibre-web:
+    image: linuxserver/calibre-web:latest
+    container_name: calibre-web
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/London
+      - DOCKER_MODS=linuxserver/mods:universal-calibre #optional
+      - OAUTHLIB_RELAX_TOKEN_SCOPE=1 #optional
+    volumes:
+      - ~/suitcase-storage/calibre-web/config:/config
+      - ~/suitcase-storage/calibre/config/Calibre Library:/books
+    ports:
+      - 8083:8083
+    depends_on:
+      - calibre
+    restart: unless-stopped
+
+  calibre:
+    image: linuxserver/calibre:latest
+    container_name: calibre
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/London
+    volumes:
+      - ~/suitcase-storage/calibre/config:/config
+      - ~/suitcase-storage/calibre/import:/import
+    ports:
+      - 8082:8080
+      - 8081:8081
+    restart: unless-stopped
+
+
   bazarr:
     image: linuxserver/bazarr
     container_name: bazarr
@@ -180,25 +213,6 @@ services:
     ports:
       - 6767:6767
     restart: unless-stopped
-
-  readarr:
-    image: linuxserver/readarr:develop
-    container_name: readarr
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Europe/London
-    volumes:
-      - /mnt/media/books:/books
-      - ~/dl:/downloads
-      - ~/suitcase-storage/readarr/config:/config
-    ports:
-      - 8787:8787
-    depends_on:
-      - prowlarr
-      - qbittorrent
-    restart: unless-stopped
-
 
   photoprism:
     image: photoprism/photoprism:latest
