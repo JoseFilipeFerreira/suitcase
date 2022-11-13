@@ -10,7 +10,9 @@ Launch all my services with Docker
 * [rss-bridge](https://github.com/RSS-Bridge/rss-bridge): RSS feed generator for websites
 
 ## :movie_camera: Movies, Photos & Books
-* [Jellyfin](https://jellyfin.org/): Media System
+* [Jellyfin](https://jellyfin.org/): Media Streaming
+* [Calibre](https://calibre-ebook.com/): Book Database
+* [Calibre-Web](https://github.com/janeczku/calibre-web): Book Database Frontend
 * [photoprism](https://photoprism.app/): AI-Powered Photos App
 
 ## :arrow_down_small: Media Download
@@ -24,5 +26,5 @@ Launch all my services with Docker
 * [JBB.py](https://github.com/josefilipeferreira/JBB.py): MiEI Discord bot
 
 ## :round_pushpin: Server Management
-* [watchtower](https://containrrr.dev/watchtower/) automating Docker updates
-* [gotify](https://gotify.net/) sending notifications
+* [watchtower](https://containrrr.dev/watchtower/): Automatic Docker Updates
+* [gotify](https://gotify.net/): Send Notifications

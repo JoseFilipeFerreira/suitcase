@@ -11,22 +11,35 @@ version: "3.9"
 # bazarr      6767
 # photoprism  2342
 # gotify      2323
+# authelia    9091
 
 services:
+
+  authelia:
+    image: authelia/authelia
+    container_name: authelia
+    environment:
+      TZ: $TZ
+    ports:
+      - 9091:9091
+    volumes:
+      - $DATADIR/authelia/config:/config
+    restart: unless-stopped
+
   qbittorrent:
     image: linuxserver/qbittorrent
     container_name: qbittorrent
     environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Europe/London
+      - PUID=$PUID
+      - PGID=$PGID
+      - TZ=$TZ
       - WEBUI_PORT=8090
     volumes:
       - ./qbittorrent/dracula:/dracula
-      - /mnt/media:/media
-      - ~/dl:/downloads
-      - ~/suitcase-storage/qbittorrent/autodl:/autodl
-      - ~/suitcase-storage/qbittorrent/config:/config
+      - $MEDIADIR:/media
+      - $DLDIR:/downloads
+      - $DATADIR/qbittorrent/autodl:/autodl
+      - $DATADIR/qbittorrent/config:/config
     ports:
       - 8090:8090
       - 65432:65432
@@ -37,17 +50,17 @@ services:
     image: jellyfin/jellyfin
     container_name: jellyfin
     environment:
-      - PUID=1000
-      - PGID=1000
+      - PUID=$PUID
+      - PGID=$PGID
       - VERSION=docker
     group_add:
       - "989"
     network_mode: host
     volumes:
-      - /mnt/media:/media
+      - $MEDIADIR:/media
       - /mnt/lacie/Media:/remote_media
-      - ~/suitcase-storage/jellyfin/cache:/cache
-      - ~/suitcase-storage/jellyfin/config:/config
+      - $DATADIR/jellyfin/cache:/cache
+      - $DATADIR/jellyfin/config:/config
     devices:
       - /dev/dri:/dev/dri
     depends_on:
@@ -60,23 +73,23 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - /mnt/media/anime:/anime
-      - /mnt/media/movies:/movies
-      - /mnt/media/music:/music
-      - /mnt/media/series:/series
+      - $MEDIADIR/anime:/anime
+      - $MEDIADIR/movies:/movies
+      - $MEDIADIR/music:/music
+      - $MEDIADIR/series:/series
       - ~/.local/share/wallpapers:/walls
       - ~/share:/share
-      - ~/suitcase-storage/iron-cake/thumb:/thumb
+      - $DATADIR/iron-cake/thumb:/thumb
     restart: unless-stopped
 
   jbb:
     image: josefilipeferreira/jbb.py:master
     container_name: jbb
     volumes:
-      - ~/suitcase-storage/jbb/config.yaml:/config.yaml
-      - ~/suitcase-storage/jbb/db:/db
-      - ~/suitcase-storage/jbb/media:/media
-      - ~/suitcase-storage/jbb/music:/music
+      - $DATADIR/jbb/config.yaml:/config.yaml
+      - $DATADIR/jbb/db:/db
+      - $DATADIR/jbb/media:/media
+      - $DATADIR/jbb/music:/music
     restart: unless-stopped
 
   merossd:
@@ -85,7 +98,7 @@ services:
     ports:
       - "4200:4200"
     volumes:
-      - ~/suitcase-storage/merossd/config.yaml:/config.yaml
+      - $DATADIR/merossd/config.yaml:/config.yaml
     restart: unless-stopped
 
   radicale:
@@ -95,7 +108,7 @@ services:
       - "5232:5232"
     volumes:
       - ~/.gitconfig:/etc/gitconfig
-      - ~/suitcase-storage/radicale:/radicale
+      - $DATADIR/radicale:/radicale
     restart: unless-stopped
 
   rss-bridge:
@@ -109,7 +122,7 @@ services:
     image: flaresolverr/flaresolverr
     container_name: flaresolverr
     environment:
-      - TZ=Europe/London
+      - TZ=$TZ
     ports:
       - 8191:8191
     restart: unless-stopped
@@ -118,11 +131,11 @@ services:
     image: linuxserver/prowlarr:develop
     container_name: prowlarr
     environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Europe/London
+      - PUID=$PUID
+      - PGID=$PGID
+      - TZ=$TZ
     volumes:
-      - ~/suitcase-storage/prowlarr/config:/config
+      - $DATADIR/prowlarr/config:/config
     ports:
       - 9696:9696
     depends_on:
@@ -133,14 +146,14 @@ services:
     image: linuxserver/sonarr
     container_name: sonarr
     environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Europe/London
+      - PUID=$PUID
+      - PGID=$PGID
+      - TZ=$TZ
       - UMASK_SET=022 #optional
     volumes:
-      - /mnt/media:/media
-      - ~/dl:/downloads
-      - ~/suitcase-storage/sonarr/config:/config
+      - $MEDIADIR:/media
+      - $DLDIR:/downloads
+      - $DATADIR/sonarr/config:/config
     ports:
       - 8989:8989
     depends_on:
@@ -152,13 +165,13 @@ services:
     image: linuxserver/radarr
     container_name: radarr
     environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Europe/London
+      - PUID=$PUID
+      - PGID=$PGID
+      - TZ=$TZ
     volumes:
-      - /mnt/media/movies:/movies
-      - ~/dl:/downloads
-      - ~/suitcase-storage/radarr/config:/config
+      - $MEDIADIR/movies:/movies
+      - $DLDIR:/downloads
+      - $DATADIR/radarr/config:/config
     ports:
       - 7878:7878
     depends_on:
@@ -170,14 +183,14 @@ services:
     image: linuxserver/calibre-web:latest
     container_name: calibre-web
     environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Europe/London
+      - PUID=$PUID
+      - PGID=$PGID
+      - TZ=$TZ
       - DOCKER_MODS=linuxserver/mods:universal-calibre #optional
       - OAUTHLIB_RELAX_TOKEN_SCOPE=1 #optional
     volumes:
-      - ~/suitcase-storage/calibre-web/config:/config
-      - ~/suitcase-storage/calibre/config/Calibre Library:/books
+      - $DATADIR/calibre-web/config:/config
+      - $DATADIR/calibre/config/Calibre Library:/books
     ports:
       - 8083:8083
     depends_on:
@@ -188,12 +201,12 @@ services:
     image: linuxserver/calibre:latest
     container_name: calibre
     environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Europe/London
+      - PUID=$PUID
+      - PGID=$PGID
+      - TZ=$TZ
     volumes:
-      - ~/suitcase-storage/calibre/config:/config
-      - ~/suitcase-storage/calibre/import:/import
+      - $DATADIR/calibre/config:/config
+      - $DATADIR/calibre/import:/import
     ports:
       - 8082:8080
       - 8081:8081
@@ -204,12 +217,12 @@ services:
     image: linuxserver/bazarr
     container_name: bazarr
     environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Europe/London
+      - PUID=$PUID
+      - PGID=$PGID
+      - TZ=$TZ
     volumes:
-      - /mnt/media:/media
-      - ~/suitcase-storage/bazarr/config:/config
+      - $MEDIADIR:/media
+      - $DATADIR/bazarr/config:/config
     ports:
       - 6767:6767
     restart: unless-stopped
@@ -253,11 +266,11 @@ services:
       # PHOTOPRISM_FFMPEG_ENCODER: "software"        # FFmpeg encoder ("software", "intel", "nvidia", "apple", "raspberry")
       # PHOTOPRISM_FFMPEG_BITRATE: "32"              # FFmpeg encoding bitrate limit in Mbit/s (default: 50)
       ## Run as a non-root user after initialization (supported: 0, 33, 50-99, 500-600, and 900-1200):
-      # PHOTOPRISM_UID: 1000
-      # PHOTOPRISM_GID: 1000
+      # PHOTOPRISM_UID: $PUID
+      # PHOTOPRISM_GID: $PGID
       # PHOTOPRISM_UMASK: 0000
     ## Start as non-root user before initialization (supported: 0, 33, 50-99, 500-600, and 900-1200):
-    # user: "1000:1000"
+    # user: ${PUID}:${PGID}
     devices:
      - "/dev/dri:/dev/dri"
     working_dir: "/photoprism"
@@ -265,7 +278,7 @@ services:
       - "~/phone:/photoprism/originals"               # Original media files (DO NOT REMOVE)
       # - "/example/family:/photoprism/originals/family" # *Additional* media folders can be mounted like this
       # - "~/Import:/photoprism/import"                  # *Optional* base folder from which files can be imported to originals
-      - "~/suitcase-storage/photoprism/storage:/photoprism/storage"
+      - $DATADIR/photoprism/storage:/photoprism/storage
 
   mariadb:
     restart: unless-stopped
@@ -276,7 +289,7 @@ services:
       - apparmor:unconfined
     command: mysqld --innodb-buffer-pool-size=512M --transaction-isolation=READ-COMMITTED --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --max-connections=512 --innodb-rollback-on-timeout=OFF --innodb-lock-wait-timeout=120
     volumes:
-      - ~/suitcase-storage/mariadb:/var/lib/mysql
+      - $DATADIR/mariadb:/var/lib/mysql
     environment:
       MARIADB_AUTO_UPGRADE: "1"
       MARIADB_INITDB_SKIP_TZINFO: "1"
@@ -293,7 +306,7 @@ services:
     environment:
       - GOTIFY_DEFAULTUSER_PASS=insecure
     volumes:
-      - ~/suitcase-storage/gotify/data:/app/data
+      - $DATADIR/gotify/data:/app/data
 
   watchtower:
     image: containrrr/watchtower
@@ -307,10 +320,10 @@ services:
       - WATCHTOWER_NOTIFICATIONS=gotify
       - WATCHTOWER_NOTIFICATION_GOTIFY_URL=https://jff.sh/gotify/
       - WATCHTOWER_NOTIFICATION_GOTIFY_TOKEN=/gotify_token
-      - TZ=Europe/Lisbon
+      - TZ=$TZ
     depends_on:
       - gotify
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ~/.config/docker/config.json:/config.json
-      - ~/suitcase-storage/watchtower/gotify_token:/gotify_token
+      - $DATADIR/watchtower/gotify_token:/gotify_token
