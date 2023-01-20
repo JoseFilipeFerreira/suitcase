@@ -15,19 +15,50 @@ version: "3.9"
 
 services:
 
-  authelia:
-    image: authelia/authelia
-    container_name: authelia
-    environment:
-      TZ: $TZ
-    ports:
-      - 9091:9091
+  homer:
+    image: b4bz/homer
+    container_name: homer
     volumes:
-      - $DATADIR/authelia/config:/config
+      - $DATADIR/homer/assets:/www/assets
+    ports:
+      - 8084:8080
+    user: $PUID:$PGID
+
+  # authelia:
+  #   image: authelia/authelia
+  #   container_name: authelia
+  #   environment:
+  #     - TZ: $TZ
+  #   ports:
+  #     - 9091:9091
+  #   volumes:
+  #     - $DATADIR/authelia/config:/config
+  #   restart: unless-stopped
+
+  unifi:
+    image: linuxserver/unifi-controller
+    container_name: unifi
+    environment:
+      - PUID=$PUID
+      - PGID=$PGID
+      - TZ=$TZ
+      - MEM_LIMIT=1024
+      - MEM_STARTUP=1024
+    volumes:
+      - $DATADIR/unifi/config:/config
+    ports:
+      - 8443:8443
+      - 3478:3478/udp
+      - 10001:10001/udp
+      - 8080:8080
+      - 8843:8843 #optional
+      - 8880:8880 #optional
+      - 6789:6789 #optional
+      - 5514:5514/udp #optional
     restart: unless-stopped
 
   qbittorrent:
-    image: linuxserver/qbittorrent
+    image: linuxserver/qbittorrent:4.4.5
     container_name: qbittorrent
     environment:
       - PUID=$PUID
@@ -58,7 +89,6 @@ services:
     network_mode: host
     volumes:
       - $MEDIADIR:/media
-      - /mnt/lacie/Media:/remote_media
       - $DATADIR/jellyfin/cache:/cache
       - $DATADIR/jellyfin/config:/config
     devices:
