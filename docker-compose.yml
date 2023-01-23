@@ -132,13 +132,15 @@ services:
     restart: unless-stopped
 
   radicale:
+    image: josefilipeferreira/docker-radicale:master
     container_name: radicale
-    build: ./radicale
     ports:
       - "5232:5232"
     volumes:
       - ~/.gitconfig:/etc/gitconfig
-      - $DATADIR/radicale:/radicale
+      - $DATADIR/radicale/users:/users
+      - $DATADIR/radicale/collections:/collections
+      - $DATADIR/radicale/config:/config
     restart: unless-stopped
 
   rss-bridge:
