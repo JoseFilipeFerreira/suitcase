@@ -1,16 +1,6 @@
 version: "3.9"
 
-# qbittorrent 8090 65432
-# iron-cake   8000
 # merossd     4200
-# radicale    5232
-# rss-bridge  3000
-# prowlarr    9696
-# sonarr      8989
-# radarr      7878
-# bazarr      6767
-# photoprism  2342
-# gotify      2323
 # authelia    9091
 
 services:
@@ -243,7 +233,6 @@ services:
       - 8082:8080
       - 8081:8081
     restart: unless-stopped
-
 
   bazarr:
     image: linuxserver/bazarr

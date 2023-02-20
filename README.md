@@ -1,7 +1,6 @@
 # 💼 suitcase
 
-Launch all my services with Docker
-
+Launch all my Containerized Services with Docker-compose
 
 ## :cloud: My Own Botnet
 * [Radicale](https://radicale.org/v3.html): CalDav and CardDav Server
@@ -17,10 +16,10 @@ Launch all my services with Docker
 
 ## :arrow_down_small: Media Download
 * [qbittorrent](https://www.qbittorrent.org/): torrent client
-* [Prowlarr](https://wiki.servarr.com/prowlarr): Indexer manager
 * [Sonarr](https://sonarr.tv/): Download and Manage Series
 * [Radarr](https://radarr.video/): Download and Manage Movies
 * [Bazarr](https://www.bazarr.media/): Download and Manage Subtitles
+* [Prowlarr](https://wiki.servarr.com/prowlarr): Indexer manager
 
 ## :robot: Bots
 * [JBB.py](https://github.com/josefilipeferreira/JBB.py): MiEI Discord bot
@@ -28,3 +27,7 @@ Launch all my services with Docker
 ## :round_pushpin: Server Management
 * [watchtower](https://containrrr.dev/watchtower/): Automatic Docker Updates
 * [gotify](https://gotify.net/): Send Notifications
+
+
+## :memo: TO-DO
+* add authelia
