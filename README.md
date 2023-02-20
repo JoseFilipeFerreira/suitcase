@@ -1,6 +1,8 @@
 # 💼 suitcase
 
-Launch all my Containerized Services with Docker-compose
+Manage my Home Lab using Containerized Services and Docker-compose.
+
+This collection of Open Source programs is used daily by my GF and I.
 
 ## :cloud: My Own Botnet
 * [Radicale](https://radicale.org/v3.html): CalDav and CardDav Server
