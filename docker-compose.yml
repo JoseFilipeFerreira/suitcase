@@ -339,7 +339,7 @@ services:
       - WATCHTOWER_CLEANUP = true
       - WATCHTOWER_NO_STARTUP_MESSAGE = true
       - WATCHTOWER_NOTIFICATIONS=gotify
-      - WATCHTOWER_NOTIFICATION_GOTIFY_URL=https://jff.sh/gotify/
+      - WATCHTOWER_NOTIFICATION_GOTIFY_URL=http://192.168.1.80:2323/
       - WATCHTOWER_NOTIFICATION_GOTIFY_TOKEN=/gotify_token
       - TZ=$TZ
     depends_on:
