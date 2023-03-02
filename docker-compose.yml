@@ -48,7 +48,7 @@ services:
     restart: unless-stopped
 
   qbittorrent:
-    image: linuxserver/qbittorrent:4.4.5
+    image: linuxserver/qbittorrent:4.5.0
     container_name: qbittorrent
     environment:
       - PUID=$PUID
@@ -79,6 +79,7 @@ services:
     network_mode: host
     volumes:
       - $MEDIADIR:/media
+      - ~/.local/share/music:/music
       - $DATADIR/jellyfin/cache:/cache
       - $DATADIR/jellyfin/config:/config
     devices:
@@ -95,7 +96,7 @@ services:
     volumes:
       - $MEDIADIR/anime:/anime
       - $MEDIADIR/movies:/movies
-      - $MEDIADIR/music:/music
+      - ~/.local/share/music:/music
       - $MEDIADIR/series:/series
       - ~/.local/share/wallpapers:/walls
       - ~/share:/share
