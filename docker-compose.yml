@@ -253,7 +253,7 @@ services:
     image: photoprism/photoprism:latest
     container_name: photoprism
     depends_on:
-      - mariadb
+      - photoprism-mariadb
     restart: unless-stopped
     security_opt:
       - seccomp:unconfined
@@ -302,16 +302,16 @@ services:
       # - "~/Import:/photoprism/import"                  # *Optional* base folder from which files can be imported to originals
       - $DATADIR/photoprism/storage:/photoprism/storage
 
-  mariadb:
+  photoprism-mariadb:
     restart: unless-stopped
     image: mariadb:10.8
-    container_name: mariadb
+    container_name: photoprism-mariadb
     security_opt:
       - seccomp:unconfined
       - apparmor:unconfined
     command: mysqld --innodb-buffer-pool-size=512M --transaction-isolation=READ-COMMITTED --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --max-connections=512 --innodb-rollback-on-timeout=OFF --innodb-lock-wait-timeout=120
     volumes:
-      - $DATADIR/mariadb:/var/lib/mysql
+      - $DATADIR/photoprism-mariadb:/var/lib/mysql
     environment:
       MARIADB_AUTO_UPGRADE: "1"
       MARIADB_INITDB_SKIP_TZINFO: "1"
