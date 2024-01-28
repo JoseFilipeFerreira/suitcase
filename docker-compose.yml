@@ -1,66 +1,146 @@
 version: "3.9"
 
-# merossd     4200
-# authelia    9091
-
 services:
+  actual-server:
+    image: actualbudget/actual-server:latest
+    container_name: actual-server
+    restart: unless-stopped
+    ports:
+      - '5006:5006'
+    volumes:
+      - ${DATADIR}/actual-server/data:/data
+
+  homeassistant:
+    image: ghcr.io/home-assistant/home-assistant:stable
+    container_name: homeassistant
+    restart: unless-stopped
+    environment:
+      TZ: ${TZ}
+    network_mode: host
+    privileged: true
+    depends_on:
+      - homeassistant-openwakeword
+      - homeassistant-whisper
+      - homeassistant-piper
+    devices:
+      - /dev/ttyACM0:/dev/ttyACM0
+    volumes:
+      - ${DATADIR}/homeassistant/config:/config
+      - /run/dbus:/run/dbus:ro
+
+
+  homeassistant-piper:
+    image: rhasspy/wyoming-piper
+    container_name: homeassistant-piper
+    volumes:
+      - ${DATADIR}/homeassistant-piper/data:/data
+    environment:
+      TZ: ${TZ}
+    restart: unless-stopped
+    command: --voice en_US-lessac-medium
+    ports:
+      - 10200:10200
+
+  homeassistant-whisper:
+    image: rhasspy/wyoming-whisper
+    container_name: homeassistant-whisper
+    volumes:
+      - ${DATADIR}/homeassistant-whisper/data:/data
+    environment:
+      TZ: ${TZ}
+    restart: unless-stopped
+    command: --model tiny-int8 --language en
+    ports:
+      - 10300:10300
+
+  homeassistant-openwakeword:
+    image: rhasspy/wyoming-openwakeword
+    container_name: homeassistant-openwakeword
+    volumes:
+      - ${DATADIR}/homeassistant-openwakeword/config:/config
+      - ${DATADIR}/homeassistant-openwakeword/data:/data
+      - ${DATADIR}/homeassistant-openwakeword/custom:/custom
+    environment:
+      TZ: ${TZ}
+    restart: unless-stopped
+    command: --preload-model 'ok_nabu' --custom-model-dir /custom
+    ports:
+      - 10400:10400
 
   homer:
     image: b4bz/homer
     container_name: homer
     volumes:
-      - $DATADIR/homer/assets:/www/assets
+      - ${DATADIR}/homer/assets:/www/assets
     ports:
       - 8084:8080
-    user: $PUID:$PGID
+    user: ${PUID}:${PGID}
 
-  # authelia:
-  #   image: authelia/authelia
-  #   container_name: authelia
-  #   environment:
-  #     - TZ: $TZ
-  #   ports:
-  #     - 9091:9091
-  #   volumes:
-  #     - $DATADIR/authelia/config:/config
-  #   restart: unless-stopped
-
-  unifi:
-    image: linuxserver/unifi-controller
-    container_name: unifi
+  mapper:
+    image: josefilipeferreira/mapper:master
+    container_name: mapper
     environment:
-      - PUID=$PUID
-      - PGID=$PGID
-      - TZ=$TZ
-      - MEM_LIMIT=1024
-      - MEM_STARTUP=1024
+      IMAGE_RATIO: 1.6
     volumes:
-      - $DATADIR/unifi/config:/config
+      - ${DATADIR}/mapper/cache:/cache
+      - ${DATADIR}/mapper/export:/export
+      - ~/phone:/images:ro
+
+  wg-easier:
+    image: josefilipeferreira/wg-easier
+    container_name: wg-easier
+    environment:
+      WG_HOST: vpn.${WEBSITE}
+      PASSWORD_FILE: /password
+    volumes:
+      - ${DATADIR}/wg-easier/config:/etc/wireguard
+      - ${DATADIR}/wg-easier/password:/password
     ports:
-      - 8443:8443
-      - 3478:3478/udp
-      - 10001:10001/udp
-      - 8080:8080
-      - 8843:8843 #optional
-      - 8880:8880 #optional
-      - 6789:6789 #optional
-      - 5514:5514/udp #optional
+      - "51820:51820/udp"
+      - "51821:51821/tcp"
     restart: unless-stopped
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    sysctls:
+      - net.ipv4.ip_forward=1
+      - net.ipv4.conf.all.src_valid_mark=1
+
+  # unifi:
+  #   image: linuxserver/unifi-controller
+  #   container_name: unifi
+  #   environment:
+  #     - PUID=$PUID
+  #     - PGID=$PGID
+  #     - TZ=$TZ
+  #     - MEM_LIMIT=1024
+  #     - MEM_STARTUP=1024
+  #   volumes:
+  #     - $DATADIR/unifi/config:/config
+  #   ports:
+  #     - 8443:8443
+  #     - 3478:3478/udp
+  #     - 10001:10001/udp
+  #     - 8080:8080
+  #     - 8843:8843 #optional
+  #     - 8880:8880 #optional
+  #     - 6789:6789 #optional
+  #     - 5514:5514/udp #optional
+  #   restart: unless-stopped
 
   qbittorrent:
     image: linuxserver/qbittorrent:4.5.2
     container_name: qbittorrent
     environment:
-      - PUID=$PUID
-      - PGID=$PGID
-      - TZ=$TZ
-      - WEBUI_PORT=8090
+      PUID: ${PUID}
+      PGID: ${PGID}
+      TZ: ${TZ}
+      WEBUI_PORT: 8090
     volumes:
-      - ./qbittorrent/dracula:/dracula
-      - $MEDIADIR:/media
-      - $DLDIR:/downloads
-      - $DATADIR/qbittorrent/autodl:/autodl
-      - $DATADIR/qbittorrent/config:/config
+      - ${MEDIADIR}:/media
+      - ${DLDIR}:/downloads
+      - ${DATADIR}/qbittorrent/autodl:/autodl
+      - ${DATADIR}/qbittorrent/config:/config
     ports:
       - 8090:8090
       - 65432:65432
@@ -71,22 +151,36 @@ services:
     image: jellyfin/jellyfin
     container_name: jellyfin
     environment:
-      - PUID=$PUID
-      - PGID=$PGID
-      - VERSION=docker
+      PUID: ${PUID}
+      PGID: ${PGID}
+      VERSION: docker
     group_add:
       - "989"
     network_mode: host
     volumes:
-      - $MEDIADIR:/media
       - ~/.local/share/music:/music
-      - $DATADIR/jellyfin/cache:/cache
-      - $DATADIR/jellyfin/config:/config
+      - ${MEDIADIR}:/media
+      - ${DATADIR}/jellyfin/cache:/cache
+      - ${DATADIR}/jellyfin/config:/config
     devices:
       - /dev/dri:/dev/dri
     depends_on:
       - gotify
     restart: unless-stopped
+
+  # jellyseerr:
+  #   image: fallenbagel/jellyseerr
+  #   container_name: jellyseerr
+  #   environment:
+  #     - LOG_LEVEL=debug
+  #     - TZ=$TZ
+  #   ports:
+  #     - 5055:5055
+  #   volumes:
+  #     - $DATADIR/jellyseerr/config:/app/config
+  #   depends_on:
+  #     - jellyfin
+  #   restart: unless-stopped
 
   iron-cake:
     image: josefilipeferreira/iron-cake:master
@@ -94,32 +188,24 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - $MEDIADIR/anime:/anime
-      - $MEDIADIR/movies:/movies
+      - ${MEDIADIR}/anime:/anime
+      - ${MEDIADIR}/movies:/movies
+      - ${MEDIADIR}/series:/series
       - ~/.local/share/music:/music
-      - $MEDIADIR/series:/series
       - ~/.local/share/wallpapers:/walls
       - ~/share:/share
-      - $DATADIR/iron-cake/thumb:/thumb
+      - ~/repos/receitas/receitas:/receitas
+      - ${DATADIR}/iron-cake/thumb:/thumb
     restart: unless-stopped
 
   jbb:
     image: josefilipeferreira/jbb.py:master
     container_name: jbb
     volumes:
-      - $DATADIR/jbb/config.yaml:/config.yaml
-      - $DATADIR/jbb/db:/db
-      - $DATADIR/jbb/media:/media
-      - $DATADIR/jbb/music:/music
-    restart: unless-stopped
-
-  merossd:
-    image: josefilipeferreira/merossd:master
-    container_name: merossd
-    ports:
-      - "4200:4200"
-    volumes:
-      - $DATADIR/merossd/config.yaml:/config.yaml
+      - ${DATADIR}/jbb/config.yaml:/config.yaml
+      - ${DATADIR}/jbb/db:/db
+      - ${DATADIR}/jbb/media:/media
+      - ${DATADIR}/jbb/music:/music
     restart: unless-stopped
 
   radicale:
@@ -129,23 +215,16 @@ services:
       - "5232:5232"
     volumes:
       - ~/.gitconfig:/etc/gitconfig
-      - $DATADIR/radicale/users:/users
-      - $DATADIR/radicale/collections:/collections
-      - $DATADIR/radicale/config:/config
-    restart: unless-stopped
-
-  rss-bridge:
-    image: rssbridge/rss-bridge:latest
-    container_name: rss-bridge
-    ports:
-      - "3000:80"
+      - ${DATADIR}/radicale/users:/users
+      - ${DATADIR}/radicale/collections:/collections
+      - ${DATADIR}/radicale/config:/config
     restart: unless-stopped
 
   flaresolverr:
     image: flaresolverr/flaresolverr
     container_name: flaresolverr
     environment:
-      - TZ=$TZ
+      TZ: ${TZ}
     ports:
       - 8191:8191
     restart: unless-stopped
@@ -154,11 +233,11 @@ services:
     image: linuxserver/prowlarr:develop
     container_name: prowlarr
     environment:
-      - PUID=$PUID
-      - PGID=$PGID
-      - TZ=$TZ
+      PUID: ${PUID}
+      PGID: ${PGID}
+      TZ: ${TZ}
     volumes:
-      - $DATADIR/prowlarr/config:/config
+      - ${DATADIR}/prowlarr/config:/config
     ports:
       - 9696:9696
     depends_on:
@@ -169,14 +248,14 @@ services:
     image: linuxserver/sonarr
     container_name: sonarr
     environment:
-      - PUID=$PUID
-      - PGID=$PGID
-      - TZ=$TZ
-      - UMASK_SET=022 #optional
+      PUID: ${PUID}
+      PGID: ${PGID}
+      TZ: ${TZ}
+      UMASK_SET: 022 #optional
     volumes:
-      - $MEDIADIR:/media
-      - $DLDIR:/downloads
-      - $DATADIR/sonarr/config:/config
+      - ${MEDIADIR}:/media
+      - ${DLDIR}:/downloads
+      - ${DATADIR}/sonarr/config:/config
     ports:
       - 8989:8989
     depends_on:
@@ -188,13 +267,13 @@ services:
     image: linuxserver/radarr
     container_name: radarr
     environment:
-      - PUID=$PUID
-      - PGID=$PGID
-      - TZ=$TZ
+      PUID: ${PUID}
+      PGID: ${PGID}
+      TZ: ${TZ}
     volumes:
-      - $MEDIADIR/movies:/movies
-      - $DLDIR:/downloads
-      - $DATADIR/radarr/config:/config
+      - ${MEDIADIR}/movies:/movies
+      - ${DLDIR}:/downloads
+      - ${DATADIR}/radarr/config:/config
     ports:
       - 7878:7878
     depends_on:
@@ -206,14 +285,14 @@ services:
     image: linuxserver/calibre-web:latest
     container_name: calibre-web
     environment:
-      - PUID=$PUID
-      - PGID=$PGID
-      - TZ=$TZ
-      - DOCKER_MODS=linuxserver/mods:universal-calibre #optional
-      - OAUTHLIB_RELAX_TOKEN_SCOPE=1 #optional
+      PUID: ${PUID}
+      PGID: ${PGID}
+      TZ: ${TZ}
+      DOCKER_MODS: linuxserver/mods:universal-calibre
+      OAUTHLIB_RELAX_TOKEN_SCOPE: 1
     volumes:
-      - $DATADIR/calibre-web/config:/config
-      - $DATADIR/calibre/config/Calibre Library:/books
+      - ${DATADIR}/calibre-web/config:/config
+      - ${DATADIR}/calibre/config/Calibre Library:/books
     ports:
       - 8083:8083
     depends_on:
@@ -224,101 +303,150 @@ services:
     image: linuxserver/calibre:latest
     container_name: calibre
     environment:
-      - PUID=$PUID
-      - PGID=$PGID
-      - TZ=$TZ
+      PUID: ${PUID}
+      PGID: ${PGID}
+      TZ: ${TZ}
     volumes:
-      - $DATADIR/calibre/config:/config
-      - $DATADIR/calibre/import:/import
+      - ${DATADIR}/calibre/config:/config
+      - ${DATADIR}/calibre/import:/import
     ports:
       - 8082:8080
       - 8081:8081
     restart: unless-stopped
 
-  bazarr:
-    image: linuxserver/bazarr
-    container_name: bazarr
-    environment:
-      - PUID=$PUID
-      - PGID=$PGID
-      - TZ=$TZ
-    volumes:
-      - $MEDIADIR:/media
-      - $DATADIR/bazarr/config:/config
-    ports:
-      - 6767:6767
+  paperless-redis:
+    image: docker.io/library/redis:7
+    container_name: paperless-redis
     restart: unless-stopped
+    volumes:
+      - ${DATADIR}/paperless-redis/data:/data
+
+  paperless-ngx:
+    image: ghcr.io/paperless-ngx/paperless-ngx:latest
+    container_name: paperless-ngx
+    restart: unless-stopped
+    ports:
+      - 9090:8000
+    volumes:
+      - ${DATADIR}/paperless/data:/usr/src/paperless/data
+      - ${DATADIR}/paperless/media:/usr/src/paperless/media
+      - ${DATADIR}/paperless/export:/usr/src/paperless/export
+      - ${DATADIR}/paperless/consume:/usr/src/paperless/consume
+    depends_on:
+      - paperless-redis
+      - gotenberg
+      - tika
+    healthcheck:
+      test: ["CMD", "curl", "-fs", "-S", "--max-time", "2", "http://localhost:8000"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    environment:
+      USERMAP_UID: ${PUID}
+      USERMAP_GID: ${PGID}
+      PAPERLESS_URL: https://${WEBSITE}
+      PAPERLESS_FORCE_SCRIPT_NAME: /paperless
+      PAPERLESS_STATIC_URL: /paperless/static/
+      PAPERLESS_OCR_LANGUAGES: por eng
+      PAPERLESS_SECRET_KEY: ${PAPERLESS_SECRET_KEY}
+      USE_X_FORWARD_HOST: true
+      USE_X_FORWARD_PORT: true
+      PAPERLESS_TIME_ZONE: ${TZ}
+      PAPERLESS_REDIS: redis://paperless-redis:6379
+      PAPERLESS_TIKA_ENABLED: 1
+      PAPERLESS_TIKA_GOTENBERG_ENDPOINT: http://gotenberg:3000
+      PAPERLESS_TIKA_ENDPOINT: http://tika:9998
+
+
+  gotenberg:
+    image: docker.io/gotenberg/gotenberg:7.10
+    container_name: gotenberg
+    restart: unless-stopped
+
+    command:
+      - "gotenberg"
+      - "--chromium-disable-javascript=true"
+      - "--chromium-allow-list=file:///tmp/.*"
+
+  tika:
+    image: ghcr.io/paperless-ngx/tika:latest
+    container_name: tika
+    restart: unless-stopped
+
+  stirling-pdf:
+    image: frooodle/s-pdf:latest
+    container_name: stirling-pdf
+    ports:
+      - 9091:8080
+    volumes:
+      - ${DATADIR}/stirling-pdf/trainingData:/usr/share/tesseract-ocr/5/tessdata
+      - ${DATADIR}/stirling-pdf/configs:/configs
+    environment:
+      DOCKER_ENABLE_SECURITY: false
+      SYSTEM_ROOTURIPATH: /pdf
 
   photoprism:
     image: photoprism/photoprism:latest
     container_name: photoprism
+    restart: unless-stopped
+    stop_grace_period: 10s
     depends_on:
       - photoprism-mariadb
-    restart: unless-stopped
     security_opt:
       - seccomp:unconfined
       - apparmor:unconfined
     ports:
-      - 2342:2342
+      - "2342:2342"
     environment:
-      PHOTOPRISM_ADMIN_PASSWORD: "insecure"          # INITIAL PASSWORD FOR "admin" USER, MINIMUM 8 CHARACTERS
-      PHOTOPRISM_AUTH_MODE: "password"               # authentication mode (public, password)
-      PHOTOPRISM_SITE_URL: "http://localhost:2342/"  # public server URL incl http:// or https:// and /path, :port is optional
-      PHOTOPRISM_ORIGINALS_LIMIT: 5000               # file size limit for originals in MB (increase for high-res video)
-      PHOTOPRISM_HTTP_COMPRESSION: "gzip"            # improves transfer speed and bandwidth utilization (none or gzip)
-      PHOTOPRISM_LOG_LEVEL: "info"                   # log level: trace, debug, info, warning, error, fatal, or panic
-      PHOTOPRISM_READONLY: "false"                   # do not modify originals directory (reduced functionality)
-      PHOTOPRISM_EXPERIMENTAL: "false"               # enables experimental features
-      PHOTOPRISM_DISABLE_CHOWN: "false"              # disables updating storage permissions via chmod and chown on startup
-      PHOTOPRISM_DISABLE_WEBDAV: "true"              # disables built-in WebDAV server
-      PHOTOPRISM_DISABLE_SETTINGS: "false"           # disables settings UI and API
-      PHOTOPRISM_RAW_PRESETS: "false"                # enables applying user presets when converting RAW files (reduces performance)
-      PHOTOPRISM_JPEG_QUALITY: 85                    # quality and file size of JPEG images and thumbnails (25-100)
-      PHOTOPRISM_DATABASE_DRIVER: "mysql"            # use MariaDB 10.5+ or MySQL 8+ instead of SQLite for improved performance
-      PHOTOPRISM_DATABASE_SERVER: "mariadb:3306"     # MariaDB or MySQL database server (hostname:port)
-      PHOTOPRISM_DATABASE_NAME: "photoprism"         # MariaDB or MySQL database schema name
-      PHOTOPRISM_DATABASE_USER: "photoprism"         # MariaDB or MySQL database user name
-      PHOTOPRISM_DATABASE_PASSWORD: "insecure"       # MariaDB or MySQL database user password
-      PHOTOPRISM_SITE_CAPTION: "Life Adventures"
-      PHOTOPRISM_SITE_DESCRIPTION: "All My Adventures in one place"
-      PHOTOPRISM_SITE_AUTHOR: "jff"
-      ## Run/install on first startup (options: update gpu tensorflow davfs clitools clean):
-      # PHOTOPRISM_INIT: "gpu tensorflow"
-      ## Hardware Video Transcoding (for sponsors only due to high maintenance and support costs):
-      # PHOTOPRISM_FFMPEG_ENCODER: "software"        # FFmpeg encoder ("software", "intel", "nvidia", "apple", "raspberry")
-      # PHOTOPRISM_FFMPEG_BITRATE: "32"              # FFmpeg encoding bitrate limit in Mbit/s (default: 50)
-      ## Run as a non-root user after initialization (supported: 0, 33, 50-99, 500-600, and 900-1200):
-      # PHOTOPRISM_UID: $PUID
-      # PHOTOPRISM_GID: $PGID
-      # PHOTOPRISM_UMASK: 0000
-    ## Start as non-root user before initialization (supported: 0, 33, 50-99, 500-600, and 900-1200):
-    # user: ${PUID}:${PGID}
+      PHOTOPRISM_ADMIN_USER: ${PHOTOPRISM_ADMIN_USER}
+      PHOTOPRISM_ADMIN_PASSWORD: ${PHOTOPRISM_ADMIN_PASSWORD}
+      PHOTOPRISM_AUTH_MODE: "password"
+      PHOTOPRISM_SITE_URL: "http://localhost:2342/"  # server URL in the format "http(s)://domain.name(:port)/(path)"
+      PHOTOPRISM_DISABLE_TLS: "false"                # disables HTTPS/TLS even if the site URL starts with https:// and a certificate is available
+      PHOTOPRISM_DEFAULT_TLS: "true"                 # defaults to a self-signed HTTPS/TLS certificate if no other certificate is available
+      PHOTOPRISM_ORIGINALS_LIMIT: 10000
+      PHOTOPRISM_HTTP_COMPRESSION: "gzip"
+      PHOTOPRISM_READONLY: "true"
+      PHOTOPRISM_EXPERIMENTAL: "true"
+      PHOTOPRISM_DISABLE_CHOWN: "true"
+      PHOTOPRISM_DISABLE_WEBDAV: "true"
+      PHOTOPRISM_JPEG_QUALITY: 90
+      PHOTOPRISM_DATABASE_DRIVER: "mysql"
+      PHOTOPRISM_DATABASE_SERVER: "photoprism-mariadb:3306"
+      PHOTOPRISM_DATABASE_NAME: ${PHOTOPRISM_MARIADB_DATABASE}
+      PHOTOPRISM_DATABASE_USER: ${PHOTOPRISM_MARIADB_USER}
+      PHOTOPRISM_DATABASE_PASSWORD: ${PHOTOPRISM_MARIADB_PASSWORD}
+      PHOTOPRISM_SITE_CAPTION: "Photos"
+      PHOTOPRISM_SITE_DESCRIPTION: "Aventuras Fotográficas"
+      PHOTOPRISM_FFMPEG_ENCODER: "intel"
+      PHOTOPRISM_UID: ${PUID}
+      PHOTOPRISM_GID: ${PGID}
+    user: ${PUID}:${PGID}
     devices:
      - "/dev/dri:/dev/dri"
     working_dir: "/photoprism"
     volumes:
-      - "~/phone:/photoprism/originals"               # Original media files (DO NOT REMOVE)
-      # - "/example/family:/photoprism/originals/family" # *Additional* media folders can be mounted like this
-      # - "~/Import:/photoprism/import"                  # *Optional* base folder from which files can be imported to originals
-      - $DATADIR/photoprism/storage:/photoprism/storage
+      - ~/phone:/photoprism/originals:ro
+      - ${DATADIR}/photoprism/storage:/photoprism/storage
 
   photoprism-mariadb:
-    restart: unless-stopped
-    image: mariadb:10.8
+    image: mariadb:11
     container_name: photoprism-mariadb
+    restart: unless-stopped
+    stop_grace_period: 5s
     security_opt:
       - seccomp:unconfined
       - apparmor:unconfined
-    command: mysqld --innodb-buffer-pool-size=512M --transaction-isolation=READ-COMMITTED --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --max-connections=512 --innodb-rollback-on-timeout=OFF --innodb-lock-wait-timeout=120
+    command: --innodb-buffer-pool-size=512M --transaction-isolation=READ-COMMITTED --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --max-connections=512 --innodb-rollback-on-timeout=OFF --innodb-lock-wait-timeout=120
     volumes:
-      - $DATADIR/photoprism-mariadb:/var/lib/mysql
+      - ${DATADIR}/photoprism-mariadb/mysql:/var/lib/mysql
     environment:
       MARIADB_AUTO_UPGRADE: "1"
       MARIADB_INITDB_SKIP_TZINFO: "1"
-      MARIADB_DATABASE: "photoprism"
-      MARIADB_USER: "photoprism"
-      MARIADB_PASSWORD: "insecure"
-      MARIADB_ROOT_PASSWORD: "insecure"
+      MARIADB_DATABASE: ${PHOTOPRISM_MARIADB_DATABASE}
+      MARIADB_USER: ${PHOTOPRISM_MARIADB_USER}
+      MARIADB_PASSWORD: ${PHOTOPRISM_MARIADB_PASSWORD}
+      MARIADB_ROOT_PASSWORD: ${PHOTOPRISM_MARIADB_ROOT_PASSWORD}
 
   gotify:
     image: gotify/server
@@ -326,26 +454,27 @@ services:
     ports:
       - 2323:80
     environment:
-      - GOTIFY_DEFAULTUSER_PASS=insecure
+      GOTIFY_DEFAULTUSER_PASS: insecure
     volumes:
-      - $DATADIR/gotify/data:/app/data
+      - ${DATADIR}/gotify/data:/app/data
 
   watchtower:
     image: containrrr/watchtower
     container_name: watchtower
     environment:
-      - WATCHTOWER_POLL_INTERVAL = 21600
-      - WATCHTOWER_INCLUDE_STOPPED = true
-      - WATCHTOWER_REVIVE_STOPPED = true
-      - WATCHTOWER_CLEANUP = true
-      - WATCHTOWER_NO_STARTUP_MESSAGE = true
-      - WATCHTOWER_NOTIFICATIONS=gotify
-      - WATCHTOWER_NOTIFICATION_GOTIFY_URL=http://192.168.1.80:2323/
-      - WATCHTOWER_NOTIFICATION_GOTIFY_TOKEN=/gotify_token
-      - TZ=$TZ
+      WATCHTOWER_POLL_INTERVAL: 86400
+      WATCHTOWER_TIMEOUT: 60s
+      WATCHTOWER_INCLUDE_STOPPED: true
+      WATCHTOWER_REVIVE_STOPPED: true
+      WATCHTOWER_CLEANUP: true
+      WATCHTOWER_NO_STARTUP_MESSAGE: true
+      WATCHTOWER_NOTIFICATIONS: gotify
+      WATCHTOWER_NOTIFICATION_GOTIFY_URL: http://192.168.1.80:2323/
+      WATCHTOWER_NOTIFICATION_GOTIFY_TOKEN: /gotify_token
+      TZ: ${TZ}
     depends_on:
       - gotify
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ~/.config/docker/config.json:/config.json
-      - $DATADIR/watchtower/gotify_token:/gotify_token
+      - ${DATADIR}/watchtower/gotify_token:/gotify_token
