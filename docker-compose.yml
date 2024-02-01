@@ -454,7 +454,7 @@ services:
     ports:
       - 2323:80
     environment:
-      GOTIFY_DEFAULTUSER_PASS: insecure
+      GOTIFY_DEFAULTUSER_PASS: ${GOTIFY_DEFAULTUSER_PASS}
     volumes:
       - ${DATADIR}/gotify/data:/app/data
 
@@ -478,3 +478,13 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - ~/.config/docker/config.json:/config.json
       - ${DATADIR}/watchtower/gotify_token:/gotify_token
+
+  uptime-kuma:
+    image: louislam/uptime-kuma:1
+    container_name: uptime-kuma
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ${DATADIR}/uptime-kuma/data:/app/data
+    ports:
+      - 3001:3001
+    restart: always
