@@ -49,7 +49,8 @@ services:
     environment:
       TZ: ${TZ}
     restart: unless-stopped
-    command: --model tiny-int8 --language en
+    command: --model base-int8 --language pt # tiny base small medium large
+
     ports:
       - 10300:10300
 
@@ -63,7 +64,7 @@ services:
     environment:
       TZ: ${TZ}
     restart: unless-stopped
-    command: --preload-model 'ok_nabu' --custom-model-dir /custom
+    command: --preload-model 'hey_jarvis' --custom-model-dir /custom
     ports:
       - 10400:10400
 
@@ -105,28 +106,6 @@ services:
     sysctls:
       - net.ipv4.ip_forward=1
       - net.ipv4.conf.all.src_valid_mark=1
-
-  # unifi:
-  #   image: linuxserver/unifi-controller
-  #   container_name: unifi
-  #   environment:
-  #     - PUID=$PUID
-  #     - PGID=$PGID
-  #     - TZ=$TZ
-  #     - MEM_LIMIT=1024
-  #     - MEM_STARTUP=1024
-  #   volumes:
-  #     - $DATADIR/unifi/config:/config
-  #   ports:
-  #     - 8443:8443
-  #     - 3478:3478/udp
-  #     - 10001:10001/udp
-  #     - 8080:8080
-  #     - 8843:8843 #optional
-  #     - 8880:8880 #optional
-  #     - 6789:6789 #optional
-  #     - 5514:5514/udp #optional
-  #   restart: unless-stopped
 
   qbittorrent:
     image: linuxserver/qbittorrent:4.5.2
@@ -189,8 +168,6 @@ services:
       - "8000:8000"
     volumes:
       - ${MEDIADIR}/anime:/anime
-      - ${MEDIADIR}/movies:/movies
-      - ${MEDIADIR}/series:/series
       - ~/.local/share/music:/music
       - ~/.local/share/wallpapers:/walls
       - ~/share:/share
@@ -348,6 +325,7 @@ services:
       PAPERLESS_FORCE_SCRIPT_NAME: /paperless
       PAPERLESS_STATIC_URL: /paperless/static/
       PAPERLESS_OCR_LANGUAGES: por eng
+      PAPERLESS_OCR_USER_ARGS: '{"invalidate_digital_signatures": true}'
       PAPERLESS_SECRET_KEY: ${PAPERLESS_SECRET_KEY}
       USE_X_FORWARD_HOST: true
       USE_X_FORWARD_PORT: true
@@ -485,6 +463,8 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ${DATADIR}/uptime-kuma/data:/app/data
+    depends_on:
+      - gotify
     ports:
       - 3001:3001
     restart: always
