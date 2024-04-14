@@ -1,6 +1,28 @@
-version: "3.9"
-
 services:
+
+  # minecraft:
+  #   image: itzg/minecraft-server
+  #   container_name: minecraft
+  #   tty: true
+  #   stdin_open: true
+  #   ports:
+  #     - "25565:25565"
+  #   environment:
+  #     UID: ${PUID}
+  #     GID: ${PGID}
+  #     TZ: ${TZ}
+  #     EULA: "TRUE"
+  #     MOTD: "jff.sh Minecrat server"
+  #     DIFFICULTY: hard
+  #     MAX_PLAYERS: 10
+  #     VIEW_DISTANCE: 32
+  #     ONLINE_MODE: FALSE
+  #     SERVER_NAME: "jff.sh"
+  #     MEMORY: 4G
+  #     USE_AIKAR_FLAGS: true
+  #   volumes:
+  #     - ${DATADIR}/minecraft/data:/data
+
   actual-server:
     image: actualbudget/actual-server:latest
     container_name: actual-server
@@ -147,19 +169,35 @@ services:
       - gotify
     restart: unless-stopped
 
-  # jellyseerr:
-  #   image: fallenbagel/jellyseerr
-  #   container_name: jellyseerr
-  #   environment:
-  #     - LOG_LEVEL=debug
-  #     - TZ=$TZ
-  #   ports:
-  #     - 5055:5055
-  #   volumes:
-  #     - $DATADIR/jellyseerr/config:/app/config
-  #   depends_on:
-  #     - jellyfin
-  #   restart: unless-stopped
+  jellystat-postgres:
+    image: postgres:15.2
+    container_name: jellystat-postgres
+    environment:
+      POSTGRES_DB: 'jfstat'
+      POSTGRES_USER: ${JELLYSTAT_DB_USER}
+      POSTGRES_PASSWORD: ${JELLYSTAT_DB_PASSWORD}
+    volumes:
+      - ${DATADIR}/jellystat-postgres/data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  jellystat:
+    image: cyfershepard/jellystat:latest
+    container_name: jellystat
+    environment:
+      POSTGRES_USER: ${JELLYSTAT_DB_USER}
+      POSTGRES_PASSWORD: ${JELLYSTAT_DB_PASSWORD}
+      POSTGRES_IP: jellystat-postgres
+      POSTGRES_PORT: 5432
+      JWT_SECRET: ${JELLYSTAT_JWT_SECRET}
+      TZ: ${TZ}
+    ports:
+      - "3000:3000"
+    volumes:
+      - ${DATADIR}/jellystat/data:/app/backend/backup-data
+    depends_on:
+      - jellystat-postgres
+      - jellyfin
+    restart: unless-stopped
 
   iron-cake:
     image: josefilipeferreira/iron-cake:master
@@ -167,12 +205,12 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - ${MEDIADIR}/anime:/anime
-      - ~/.local/share/music:/music
-      - ~/.local/share/wallpapers:/walls
-      - ~/share:/share
-      - ~/repos/receitas/receitas:/receitas
       - ${DATADIR}/iron-cake/thumb:/thumb
+      - ${MEDIADIR}/anime:/anime:ro
+      - ~/.local/share/music:/music:ro
+      - ~/.local/share/wallpapers:/walls:ro
+      - ~/share:/share:ro
+      - ~/repos/receitas/receitas:/receitas:ro
     restart: unless-stopped
 
   jbb:
@@ -404,7 +442,7 @@ services:
      - "/dev/dri:/dev/dri"
     working_dir: "/photoprism"
     volumes:
-      - ~/phone:/photoprism/originals:ro
+      - ~/backup:/photoprism/originals:ro
       - ${DATADIR}/photoprism/storage:/photoprism/storage
 
   photoprism-mariadb:
@@ -454,8 +492,23 @@ services:
       - gotify
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - ~/.config/docker/config.json:/config.json
       - ${DATADIR}/watchtower/gotify_token:/gotify_token
+
+  scrutiny:
+    container_name: scrutiny
+    image: ghcr.io/analogj/scrutiny:master-omnibus
+    cap_add:
+      - SYS_RAWIO
+      - SYS_ADMIN
+    ports:
+      - "8888:8080"
+    volumes:
+      - /run/udev:/run/udev:ro
+      - ${DATADIR}/scrutiny/config:/config
+      - ${DATADIR}/scrutiny-influxdb/config:/opt/scrutiny/influxdb
+    devices:
+      - /dev/sda
+      - /dev/nvme0n1:/dev/nvme0n1
 
   uptime-kuma:
     image: louislam/uptime-kuma:1
