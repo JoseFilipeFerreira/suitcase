@@ -100,24 +100,23 @@ services:
     user: ${PUID}:${PGID}
 
   mapper:
-    image: josefilipeferreira/mapper:master
+    image: josefilipeferreira/mapper
     container_name: mapper
     environment:
       IMAGE_RATIO: 1.6
     volumes:
       - ${DATADIR}/mapper/cache:/cache
       - ${DATADIR}/mapper/export:/export
-      - ~/phone:/images:ro
+      - ~/backup/phone_jff:/images:ro
 
-  wg-easier:
-    image: josefilipeferreira/wg-easier
-    container_name: wg-easier
+  wg-easy:
+    image: ghcr.io/wg-easy/wg-easy
+    container_name: wg-easy
     environment:
       WG_HOST: vpn.${WEBSITE}
-      PASSWORD_FILE: /password
+      PASSWORD: ${WG_EASY_PASSWORD}
     volumes:
-      - ${DATADIR}/wg-easier/config:/etc/wireguard
-      - ${DATADIR}/wg-easier/password:/password
+      - ${DATADIR}/wg-easy/config:/etc/wireguard
     ports:
       - "51820:51820/udp"
       - "51821:51821/tcp"
@@ -200,7 +199,7 @@ services:
     restart: unless-stopped
 
   iron-cake:
-    image: josefilipeferreira/iron-cake:master
+    image: josefilipeferreira/iron-cake
     container_name: iron-cake
     ports:
       - "8000:8000"
@@ -214,7 +213,7 @@ services:
     restart: unless-stopped
 
   jbb:
-    image: josefilipeferreira/jbb.py:master
+    image: josefilipeferreira/jbb.py
     container_name: jbb
     volumes:
       - ${DATADIR}/jbb/config.yaml:/config.yaml
@@ -224,7 +223,7 @@ services:
     restart: unless-stopped
 
   radicale:
-    image: josefilipeferreira/docker-radicale:master
+    image: josefilipeferreira/docker-radicale
     container_name: radicale
     ports:
       - "5232:5232"
