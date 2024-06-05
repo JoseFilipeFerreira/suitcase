@@ -228,7 +228,7 @@ services:
     ports:
       - "5232:5232"
     volumes:
-      - ~/.gitconfig:/etc/gitconfig
+      - ~/.gitconfig:/root/.gitconfig
       - ${DATADIR}/radicale/users:/users
       - ${DATADIR}/radicale/collections:/collections
       - ${DATADIR}/radicale/config:/config
