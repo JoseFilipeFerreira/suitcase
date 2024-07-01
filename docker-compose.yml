@@ -23,6 +23,59 @@ services:
   #   volumes:
   #     - ${DATADIR}/minecraft/data:/data
 
+  nextcloud-mariadb:
+    image: mariadb:10.6
+    container_name: nextcloud-mariadb
+    command: --transaction-isolation=READ-COMMITTED --log-bin=binlog --binlog-format=ROW
+    restart: always
+    volumes:
+      - ${DATADIR}/nextcloud-mariadb:/var/lib/mysql:Z
+    environment:
+      MYSQL_ROOT_PASSWORD: ${NEXTCLOUD_MYSQL_ROOT_PASSWORD}
+      MYSQL_PASSWORD: ${NEXTCLOUD_MYSQL_PASSWORD}
+      MYSQL_DATABASE: ${NEXTCLOUD_MYSQL_DATABASE}
+      MYSQL_USER: ${NEXTCLOUD_MYSQL_USER}
+      MARIADB_AUTO_UPGRADE: 1
+      MARIADB_DISABLE_UPGRADE_BACKUP: 1
+
+  nextcloud-redis:
+    image: redis:alpine
+    container_name: nextcloud-redis
+    restart: always
+
+  nextcloud-cron:
+    image: nextcloud:apache
+    container_name: nextcloud-cron
+    restart: always
+    volumes:
+      - ${DATADIR}/nextcloud:/var/www/html:z
+    entrypoint: /cron.sh
+    depends_on:
+      - nextcloud-mariadb
+      - nextcloud-redis
+
+  nextcloud:
+    image: nextcloud:apache
+    container_name: nextcloud
+    restart: always
+    ports:
+      - 8085:80
+    volumes:
+      - ${DATADIR}/nextcloud:/var/www/html:z
+    environment:
+      TZ: ${TZ}
+      MYSQL_PASSWORD: ${NEXTCLOUD_MYSQL_PASSWORD}
+      MYSQL_DATABASE: ${NEXTCLOUD_MYSQL_DATABASE}
+      MYSQL_USER: ${NEXTCLOUD_MYSQL_USER}
+      MYSQL_HOST: nextcloud-mariadb
+      REDIS_HOST: nextcloud-redis
+      NEXTCLOUD_TRUSTED_DOMAINS: ${NEXTCLOUD_WEBSITE}
+      OVERWRITECLIURL: https://${NEXTCLOUD_WEBSITE}
+      OVERWRITEPROTOCOL: https
+    depends_on:
+      - nextcloud-mariadb
+      - nextcloud-redis
+
   actual-server:
     image: actualbudget/actual-server:latest
     container_name: actual-server
@@ -99,15 +152,15 @@ services:
       - 8084:8080
     user: ${PUID}:${PGID}
 
-  mapper:
-    image: josefilipeferreira/mapper
-    container_name: mapper
-    environment:
-      IMAGE_RATIO: 1.6
-    volumes:
-      - ${DATADIR}/mapper/cache:/cache
-      - ${DATADIR}/mapper/export:/export
-      - ~/backup/phone_jff:/images:ro
+  # mapper:
+  #   image: josefilipeferreira/mapper
+  #   container_name: mapper
+  #   environment:
+  #     IMAGE_RATIO: 1.6
+  #   volumes:
+  #     - ${DATADIR}/mapper/cache:/cache
+  #     - ${DATADIR}/mapper/export:/export
+  #     - ~/backup/phone_jff:/images:ro
 
   wg-easy:
     image: ghcr.io/wg-easy/wg-easy
@@ -222,18 +275,6 @@ services:
       - ${DATADIR}/jbb/music:/music
     restart: unless-stopped
 
-  radicale:
-    image: josefilipeferreira/docker-radicale
-    container_name: radicale
-    ports:
-      - "5232:5232"
-    volumes:
-      - ~/.gitconfig:/root/.gitconfig
-      - ${DATADIR}/radicale/users:/users
-      - ${DATADIR}/radicale/collections:/collections
-      - ${DATADIR}/radicale/config:/config
-    restart: unless-stopped
-
   flaresolverr:
     image: flaresolverr/flaresolverr
     container_name: flaresolverr
@@ -296,7 +337,7 @@ services:
     restart: unless-stopped
 
   calibre-web:
-    image: linuxserver/calibre-web:latest
+    image: linuxserver/calibre-web:nightly
     container_name: calibre-web
     environment:
       PUID: ${PUID}
@@ -326,66 +367,6 @@ services:
     ports:
       - 8082:8080
       - 8081:8081
-    restart: unless-stopped
-
-  paperless-redis:
-    image: docker.io/library/redis:7
-    container_name: paperless-redis
-    restart: unless-stopped
-    volumes:
-      - ${DATADIR}/paperless-redis/data:/data
-
-  paperless-ngx:
-    image: ghcr.io/paperless-ngx/paperless-ngx:latest
-    container_name: paperless-ngx
-    restart: unless-stopped
-    ports:
-      - 9090:8000
-    volumes:
-      - ${DATADIR}/paperless/data:/usr/src/paperless/data
-      - ${DATADIR}/paperless/media:/usr/src/paperless/media
-      - ${DATADIR}/paperless/export:/usr/src/paperless/export
-      - ${DATADIR}/paperless/consume:/usr/src/paperless/consume
-    depends_on:
-      - paperless-redis
-      - gotenberg
-      - tika
-    healthcheck:
-      test: ["CMD", "curl", "-fs", "-S", "--max-time", "2", "http://localhost:8000"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-    environment:
-      USERMAP_UID: ${PUID}
-      USERMAP_GID: ${PGID}
-      PAPERLESS_URL: https://${WEBSITE}
-      PAPERLESS_FORCE_SCRIPT_NAME: /paperless
-      PAPERLESS_STATIC_URL: /paperless/static/
-      PAPERLESS_OCR_LANGUAGES: por eng
-      PAPERLESS_OCR_USER_ARGS: '{"invalidate_digital_signatures": true}'
-      PAPERLESS_SECRET_KEY: ${PAPERLESS_SECRET_KEY}
-      USE_X_FORWARD_HOST: true
-      USE_X_FORWARD_PORT: true
-      PAPERLESS_TIME_ZONE: ${TZ}
-      PAPERLESS_REDIS: redis://paperless-redis:6379
-      PAPERLESS_TIKA_ENABLED: 1
-      PAPERLESS_TIKA_GOTENBERG_ENDPOINT: http://gotenberg:3000
-      PAPERLESS_TIKA_ENDPOINT: http://tika:9998
-
-
-  gotenberg:
-    image: docker.io/gotenberg/gotenberg:7.10
-    container_name: gotenberg
-    restart: unless-stopped
-
-    command:
-      - "gotenberg"
-      - "--chromium-disable-javascript=true"
-      - "--chromium-allow-list=file:///tmp/.*"
-
-  tika:
-    image: ghcr.io/paperless-ngx/tika:latest
-    container_name: tika
     restart: unless-stopped
 
   stirling-pdf:
@@ -500,14 +481,14 @@ services:
       - SYS_RAWIO
       - SYS_ADMIN
     ports:
-      - "8888:8080"
+      - 8888:8080
     volumes:
       - /run/udev:/run/udev:ro
       - ${DATADIR}/scrutiny/config:/config
       - ${DATADIR}/scrutiny-influxdb/config:/opt/scrutiny/influxdb
     devices:
       - /dev/sda
-      - /dev/nvme0n1:/dev/nvme0n1
+      - /dev/nvme0n1
 
   uptime-kuma:
     image: louislam/uptime-kuma:1

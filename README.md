@@ -15,4 +15,3 @@ This collection of Open Source programs is used daily by my GF and I.
 
 ## :memo: TO-DO
 * [ ] add authelia
-* [ ] add nextcloud
