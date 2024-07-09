@@ -422,7 +422,7 @@ services:
      - "/dev/dri:/dev/dri"
     working_dir: "/photoprism"
     volumes:
-      - ~/backup:/photoprism/originals:ro
+      - ${MEDIADIR}/backup:/photoprism/originals:ro
       - ${DATADIR}/photoprism/storage:/photoprism/storage
 
   photoprism-mariadb:
@@ -488,6 +488,7 @@ services:
       - ${DATADIR}/scrutiny-influxdb/config:/opt/scrutiny/influxdb
     devices:
       - /dev/sda
+      - /dev/sdb
       - /dev/nvme0n1
 
   uptime-kuma:
