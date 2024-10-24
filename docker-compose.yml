@@ -17,7 +17,7 @@ services:
       DB_USERNAME: ${IMMICH_DATABASE_USERNAME}
       DB_DATABASE_NAME: ${IMMICH_DATABASE_NAME}
     ports:
-      - 2283:3001
+      - 2283:2283
     depends_on:
       - immich-redis
       - immich-postgres
@@ -490,15 +490,3 @@ services:
       - /dev/sda
       - /dev/sdb
       - /dev/nvme0n1
-
-  uptime-kuma:
-    image: louislam/uptime-kuma:1
-    container_name: uptime-kuma
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - ${DATADIR}/uptime-kuma/data:/app/data
-    depends_on:
-      - gotify
-    ports:
-      - 3001:3001
-    restart: always
