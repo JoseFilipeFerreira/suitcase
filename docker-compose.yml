@@ -22,7 +22,7 @@ services:
       - immich-redis
       - immich-postgres
       - immich-machine-learning
-    restart: always
+    restart: unless-stopped
     healthcheck:
       disable: false
 
@@ -34,7 +34,7 @@ services:
       service: openvino
     volumes:
       - ${DATADIR}/immich-machine-learning/cache:/cache
-    restart: always
+    restart: unless-stopped
     healthcheck:
       disable: false
 
@@ -43,7 +43,7 @@ services:
     image: docker.io/redis:6.2-alpine@sha256:e3b17ba9479deec4b7d1eeec1548a253acc5374d68d3b27937fcfe4df8d18c7e
     healthcheck:
       test: redis-cli ping || exit 1
-    restart: always
+    restart: unless-stopped
 
   immich-postgres:
     container_name: immich-postgres
@@ -61,7 +61,7 @@ services:
       start_interval: 30s
       start_period: 5m
     command: ["postgres", "-c", "shared_preload_libraries=vectors.so", "-c", 'search_path="$$user", public, vectors', "-c", "logging_collector=on", "-c", "max_wal_size=2GB", "-c", "shared_buffers=512MB", "-c", "wal_compression=on"]
-    restart: always
+    restart: unless-stopped
 
   immich-kiosk:
     image: damongolding/immich-kiosk
@@ -86,7 +86,7 @@ services:
     image: mariadb:10.6
     container_name: nextcloud-mariadb
     command: --transaction-isolation=READ-COMMITTED --log-bin=binlog --binlog-format=ROW
-    restart: always
+    restart: unless-stopped
     volumes:
       - ${DATADIR}/nextcloud-mariadb:/var/lib/mysql:Z
     environment:
@@ -100,12 +100,12 @@ services:
   nextcloud-redis:
     image: redis:alpine
     container_name: nextcloud-redis
-    restart: always
+    restart: unless-stopped
 
   nextcloud-cron:
     image: nextcloud:apache
     container_name: nextcloud-cron
-    restart: always
+    restart: unless-stopped
     volumes:
       - ${DATADIR}/nextcloud:/var/www/html:z
     entrypoint: /cron.sh
@@ -116,7 +116,7 @@ services:
   nextcloud:
     image: nextcloud:apache
     container_name: nextcloud
-    restart: always
+    restart: unless-stopped
     ports:
       - 8085:80
     volumes:
@@ -144,6 +144,33 @@ services:
     volumes:
       - ${DATADIR}/actual-server/data:/data
 
+  zigbee2mqtt:
+    container_name: zigbee2mqtt
+    image: koenkk/zigbee2mqtt
+    restart: unless-stopped
+    volumes:
+      - ${DATADIR}/zigbee2mqtt/data:/app/data
+      - /run/udev:/run/udev:ro
+    ports:
+      - 9093:8080
+    environment:
+      TZ: ${TZ}
+    devices:
+      - /dev/serial/by-id/usb-ITEAD_SONOFF_Zigbee_3.0_USB_Dongle_Plus_V2_20230804164414-if00:/dev/ttyACM0
+      # - /dev/ttyACM0:/dev/ttyACM0
+
+  mosquitto:
+    image: eclipse-mosquitto
+    container_name: mosquitto
+    ports:
+      - "1883:1883" #default mqtt port
+      - "9001:9001" #default mqtt port for websockets
+    volumes:
+      - ${DATADIR}/mosquitto/config:/mosquitto/config
+      - ${DATADIR}/mosquitto/data:/mosquitto/data
+      - ${DATADIR}/mosquitto/log:/mosquitto/log
+    restart: unless-stopped
+
   homeassistant:
     image: ghcr.io/home-assistant/home-assistant:stable
     container_name: homeassistant
@@ -156,11 +183,10 @@ services:
       - homeassistant-openwakeword
       - homeassistant-whisper
       - homeassistant-piper
-    devices:
-      - /dev/ttyACM0:/dev/ttyACM0
+      - mosquitto
+      - zigbee2mqtt
     volumes:
       - ${DATADIR}/homeassistant/config:/config
-      - /run/dbus:/run/dbus:ro
 
 
   homeassistant-piper:
@@ -244,7 +270,7 @@ services:
       - net.ipv4.conf.all.src_valid_mark=1
 
   qbittorrent:
-    image: linuxserver/qbittorrent:4.5.2
+    image: linuxserver/qbittorrent:5.0.1
     container_name: qbittorrent
     environment:
       PUID: ${PUID}
@@ -433,16 +459,35 @@ services:
     restart: unless-stopped
 
   stirling-pdf:
-    image: frooodle/s-pdf:latest
+    image: stirlingtools/stirling-pdf:latest
     container_name: stirling-pdf
     ports:
       - 9091:8080
     volumes:
-      - ${DATADIR}/stirling-pdf/trainingData:/usr/share/tesseract-ocr/5/tessdata
+      - ${DATADIR}/stirling-pdf/trainingData:/usr/share/tessdata
       - ${DATADIR}/stirling-pdf/configs:/configs
+      - ${DATADIR}/stirling-pdf/customFiles:/customFiles
+      - ${DATADIR}/stirling-pdf/logs:/logs
     environment:
       DOCKER_ENABLE_SECURITY: false
+      INSTALL_BOOK_AND_ADVANCED_HTML_OPS: false
       SYSTEM_ROOTURIPATH: /pdf
+
+  speedtest-tracker:
+    image: lscr.io/linuxserver/speedtest-tracker:latest
+    container_name: speedtest-tracker
+    ports:
+      - 9092:80
+    environment:
+      PUID: ${PUID}
+      PGID: ${PGID}
+      APP_KEY: ${SPEEDTEST_TRACKER_APP_KEY}
+      APP_TIMEZONE: ${TZ}
+      DB_CONNECTION: sqlite
+      SPEEDTEST_SCHEDULE: 0 * * * *
+    volumes:
+      - ${DATADIR}/speedtest-tracker/config:/config
+    restart: unless-stopped
 
   gotify:
     image: gotify/server
