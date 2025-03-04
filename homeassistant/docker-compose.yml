@@ -1,0 +1,85 @@
+services:
+
+  zigbee2mqtt:
+    container_name: zigbee2mqtt
+    image: koenkk/zigbee2mqtt
+    restart: unless-stopped
+    volumes:
+      - ${DATADIR}/zigbee2mqtt/data:/app/data
+      - /run/udev:/run/udev:ro
+    ports:
+      - 9093:8080
+    environment:
+      TZ: ${TZ}
+    devices:
+      - /dev/serial/by-id/usb-ITEAD_SONOFF_Zigbee_3.0_USB_Dongle_Plus_V2_20230804164414-if00:/dev/ttyACM0
+      # - /dev/ttyACM0:/dev/ttyACM0
+
+  mosquitto:
+    image: eclipse-mosquitto
+    container_name: mosquitto
+    ports:
+      - 1883:1883
+      - 9001:9001
+    volumes:
+      - ${DATADIR}/mosquitto/config:/mosquitto/config
+      - ${DATADIR}/mosquitto/data:/mosquitto/data
+      - ${DATADIR}/mosquitto/log:/mosquitto/log
+    restart: unless-stopped
+
+  homeassistant:
+    image: ghcr.io/home-assistant/home-assistant:stable
+    container_name: homeassistant
+    restart: unless-stopped
+    environment:
+      TZ: ${TZ}
+    network_mode: host
+    privileged: true
+    depends_on:
+      - homeassistant-openwakeword
+      - homeassistant-whisper
+      - homeassistant-piper
+      - mosquitto
+      - zigbee2mqtt
+    volumes:
+      - ${DATADIR}/homeassistant/config:/config
+
+
+  homeassistant-piper:
+    image: rhasspy/wyoming-piper
+    container_name: homeassistant-piper
+    volumes:
+      - ${DATADIR}/homeassistant-piper/data:/data
+    environment:
+      TZ: ${TZ}
+    restart: unless-stopped
+    command: --voice pt_PT-tugão-medium
+    ports:
+      - 10200:10200
+
+  homeassistant-whisper:
+    image: rhasspy/wyoming-whisper
+    container_name: homeassistant-whisper
+    volumes:
+      - ${DATADIR}/homeassistant-whisper/data:/data
+    environment:
+      TZ: ${TZ}
+    restart: unless-stopped
+    command: --model base-int8 --language pt # tiny base small medium large
+
+    ports:
+      - 10300:10300
+
+  homeassistant-openwakeword:
+    image: rhasspy/wyoming-openwakeword
+    container_name: homeassistant-openwakeword
+    volumes:
+      - ${DATADIR}/homeassistant-openwakeword/config:/config
+      - ${DATADIR}/homeassistant-openwakeword/data:/data
+      - ${DATADIR}/homeassistant-openwakeword/custom:/custom
+    environment:
+      TZ: ${TZ}
+    restart: unless-stopped
+    command: --preload-model 'hey_jarvis' --custom-model-dir /custom
+    ports:
+      - 10400:10400

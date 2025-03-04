@@ -1,0 +1,99 @@
+services:
+
+  jellyfin:
+    image: jellyfin/jellyfin
+    container_name: jellyfin
+    extends:
+      file: hwaccel.transcoding.yml
+      service: quicksync
+    environment:
+      PUID: ${PUID}
+      PGID: ${PGID}
+      VERSION: docker
+    group_add:
+      - "989"
+    network_mode: host
+    volumes:
+      - ~/.local/share/music:/music
+      - ${MEDIADIR}:/media
+      - ${DATADIR}/jellyfin/cache:/cache
+      - ${DATADIR}/jellyfin/config:/config
+    restart: unless-stopped
+
+  jellystat-postgres:
+    image: postgres:15.2
+    container_name: jellystat-postgres
+    environment:
+      POSTGRES_DB: 'jfstat'
+      POSTGRES_USER: ${JELLYSTAT_DB_USER}
+      POSTGRES_PASSWORD: ${JELLYSTAT_DB_PASSWORD}
+    volumes:
+      - ${DATADIR}/jellystat-postgres/data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  jellystat:
+    image: cyfershepard/jellystat:latest
+    container_name: jellystat
+    environment:
+      POSTGRES_USER: ${JELLYSTAT_DB_USER}
+      POSTGRES_PASSWORD: ${JELLYSTAT_DB_PASSWORD}
+      POSTGRES_IP: jellystat-postgres
+      POSTGRES_PORT: 5432
+      JWT_SECRET: ${JELLYSTAT_JWT_SECRET}
+      TZ: ${TZ}
+    ports:
+      - 3000:3000
+    volumes:
+      - ${DATADIR}/jellystat/data:/app/backend/backup-data
+    depends_on:
+      - jellystat-postgres
+      - jellyfin
+    restart: unless-stopped
+
+  iron-cake:
+    image: josefilipeferreira/iron-cake
+    container_name: iron-cake
+    ports:
+      - 8000:8000
+    volumes:
+      - ${DATADIR}/iron-cake/thumb:/thumb
+      - ${DATADIR}/mapper/export:/map:ro
+      - ${MEDIADIR}/anime:/anime:ro
+      - ~/.local/share/music:/music:ro
+      - ~/.local/share/wallpapers:/walls:ro
+      - ~/repos/receitas/receitas:/receitas:ro
+      - ~/share:/share:ro
+    restart: unless-stopped
+
+  calibre-web:
+    image: linuxserver/calibre-web:nightly
+    container_name: calibre-web
+    environment:
+      PUID: ${PUID}
+      PGID: ${PGID}
+      TZ: ${TZ}
+      DOCKER_MODS: linuxserver/mods:universal-calibre
+      OAUTHLIB_RELAX_TOKEN_SCOPE: 1
+    volumes:
+      - ${DATADIR}/calibre-web/config:/config
+      - ${DATADIR}/calibre/config/Calibre Library:/books
+    ports:
+      - 8083:8083
+    depends_on:
+      - calibre
+    restart: unless-stopped
+
+  calibre:
+    image: linuxserver/calibre:latest
+    container_name: calibre
+    environment:
+      PUID: ${PUID}
+      PGID: ${PGID}
+      TZ: ${TZ}
+    volumes:
+      - ${DATADIR}/calibre/config:/config
+      - ${DATADIR}/calibre/import:/import
+    ports:
+      - 8082:8080
+      - 8081:8081
+    restart: unless-stopped

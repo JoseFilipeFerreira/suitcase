@@ -11,7 +11,3 @@ This collection of Open Source programs is used daily by my GF and I.
 ## :robot: Others
 * [JBB.py](https://github.com/josefilipeferreira/JBB.py): MiEI Discord bot
 * [watchtower](https://containrrr.dev/watchtower/): Automatic Docker Updates
-
-
-## :memo: TO-DO
-* [ ] add authelia

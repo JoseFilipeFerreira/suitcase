@@ -1,0 +1,46 @@
+services:
+
+  actual-server:
+    image: actualbudget/actual-server:latest
+    container_name: actual-server
+    restart: unless-stopped
+    ports:
+      - 5006:5006
+    volumes:
+      - ${DATADIR}/actual-server/data:/data
+
+  mapper:
+    image: josefilipeferreira/mapper
+    container_name: mapper
+    environment:
+      IMAGE_RATIO: 1.6
+    volumes:
+      - ${DATADIR}/mapper/cache:/cache
+      - ${DATADIR}/mapper/export:/export
+      - ${MEDIADIR}/backup:/images:ro
+
+
+  jbb:
+    image: josefilipeferreira/jbb.py
+    container_name: jbb
+    volumes:
+      - ${DATADIR}/jbb/config.yaml:/config.yaml
+      - ${DATADIR}/jbb/db:/db
+      - ${DATADIR}/jbb/media:/media
+      - ${DATADIR}/jbb/music:/music
+    restart: unless-stopped
+
+  stirling-pdf:
+    image: stirlingtools/stirling-pdf:latest
+    container_name: stirling-pdf
+    ports:
+      - 9091:8080
+    volumes:
+      - ${DATADIR}/stirling-pdf/trainingData:/usr/share/tessdata
+      - ${DATADIR}/stirling-pdf/configs:/configs
+      - ${DATADIR}/stirling-pdf/customFiles:/customFiles
+      - ${DATADIR}/stirling-pdf/logs:/logs
+    environment:
+      DOCKER_ENABLE_SECURITY: false
+      INSTALL_BOOK_AND_ADVANCED_HTML_OPS: false
+      SYSTEM_ROOTURIPATH: /pdf

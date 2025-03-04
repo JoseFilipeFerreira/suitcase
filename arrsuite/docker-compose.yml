@@ -1,0 +1,91 @@
+services:
+
+  qbittorrent:
+    image: linuxserver/qbittorrent:5.0.1
+    container_name: qbittorrent
+    environment:
+      PUID: ${PUID}
+      PGID: ${PGID}
+      TZ: ${TZ}
+      TORRENTING_PORT: ${PORT_TORRENT}
+      WEBUI_PORT: 8090
+    dns:
+      - 1.1.1.1
+    volumes:
+      - ${MEDIADIR}:/media
+      - ${DLDIR}:/downloads
+      - ${DATADIR}/qbittorrent/config:/config
+    ports:
+      - 8090:8090
+      - ${PORT_TORRENT}:${PORT_TORRENT}
+      - ${PORT_TORRENT}:${PORT_TORRENT}/udp
+    restart: unless-stopped
+
+  flaresolverr:
+    image: flaresolverr/flaresolverr
+    container_name: flaresolverr
+    environment:
+      TZ: ${TZ}
+    ports:
+      - 8191:8191
+    dns:
+      - 1.1.1.1
+    restart: unless-stopped
+
+  prowlarr:
+    image: linuxserver/prowlarr:develop
+    container_name: prowlarr
+    environment:
+      PUID: ${PUID}
+      PGID: ${PGID}
+      TZ: ${TZ}
+    volumes:
+      - ${DATADIR}/prowlarr/config:/config
+    ports:
+      - 9696:9696
+    dns:
+      - 1.1.1.1
+    depends_on:
+      - flaresolverr
+    restart: unless-stopped
+
+  sonarr:
+    image: linuxserver/sonarr
+    container_name: sonarr
+    environment:
+      PUID: ${PUID}
+      PGID: ${PGID}
+      TZ: ${TZ}
+      UMASK_SET: 022 #optional
+    volumes:
+      - ${MEDIADIR}:/media
+      - ${DLDIR}:/downloads
+      - ${DATADIR}/sonarr/config:/config
+    dns:
+      - 1.1.1.1
+    ports:
+      - 8989:8989
+    depends_on:
+      - prowlarr
+      - qbittorrent
+    restart: unless-stopped
+
+  radarr:
+    image: linuxserver/radarr
+    container_name: radarr
+    environment:
+      PUID: ${PUID}
+      PGID: ${PGID}
+      TZ: ${TZ}
+    volumes:
+      - ${MEDIADIR}/movies:/movies
+      - ${DLDIR}:/downloads
+      - ${DATADIR}/radarr/config:/config
+    dns:
+      - 1.1.1.1
+    ports:
+      - 7878:7878
+    depends_on:
+      - prowlarr
+      - qbittorrent
+    restart: unless-stopped
