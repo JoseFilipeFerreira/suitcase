@@ -4,11 +4,11 @@ services:
     image: linuxserver/unifi-controller
     container_name: unifi
     environment:
-      - PUID=$PUID
-      - PGID=$PGID
-      - TZ=$TZ
-      - MEM_LIMIT=1024
-      - MEM_STARTUP=1024
+      PUID: ${PUID}
+      PGID: ${PGID}
+      TZ: ${TZ}
+      MEM_LIMIT: 2048
+      MEM_STARTUP: 1024
     volumes:
       - ${DATADIR}/unifi/config:/config
     ports:
@@ -20,4 +20,4 @@ services:
       - 8880:8880 #optional
       - 6789:6789 #optional
       - 5514:5514/udp #optional
-    restart: unless-stopped
+    restart: always
