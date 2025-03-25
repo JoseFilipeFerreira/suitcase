@@ -1,0 +1,41 @@
+#!/bin/bash
+# 2D single-server Kuerbenetes-ish docker-compose manager with machine
+set -euo pipefail
+
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+RESET='\033[0m'
+
+case "$(hostname)" in
+    "kiwi")
+        projects=(
+            "admin"
+            "arrsuite"
+            "homeassistant"
+            "immich"
+            "media"
+            "misc"
+            "nextcloud"
+        )
+        ;;
+    "lion")
+        projects=(
+            "unifi"
+        )
+        ;;
+    *)
+        echo -e "${RED}Unknown machine${RESET}"
+        exit 1
+        ;;
+esac
+
+if [[ $# -lt 1 ]]; then
+    echo -e "${RED}Error: Missing arguments${RESET}"
+    exit 1
+fi
+
+for project in "${projects[@]}"; do
+    echo -e "${GREEN}Running 'docker-compose $*' in $project${RESET}"
+    (cd "$project" && docker-compose "$@")
+done
+
