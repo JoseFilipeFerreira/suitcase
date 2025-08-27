@@ -7,7 +7,7 @@ services:
       file: hwaccel.transcoding.yml
       service: quicksync
     volumes:
-      - ${BULKDIR}/immich:/usr/src/app/upload
+      - ${BULKDIR}/immich:/data
       - /etc/localtime:/etc/localtime:ro
     environment:
       TZ: ${TZ}
@@ -66,6 +66,7 @@ services:
       KIOSK_IMMICH_URL: https://immich.${WEBSITE}
       KIOSK_IMMICH_API_KEY: ${KIOSK_IMMICH_API_KEY}
       KIOSK_PERSON: ${KIOSK_PERSON}
+      KIOSK_REQUIRE_ALL_PEOPLE: true
       KIOSK_SHOW_TIME: true
       KIOSK_SHOW_DATE: true
       KIOSK_FONT_SIZE: 120
@@ -75,7 +76,6 @@ services:
       KIOSK_SHOW_IMAGE_DATE: true
       KIOSK_SHOW_IMAGE_LOCATION: true
       KIOSK_SHOW_IMAGE_EXIF: true
-      KIOSK_IMAGE_EFFECT: 'smart-zoom'
       KIOSK_IMAGE_EFFECT_AMOUNT: 110
       KIOSK_USE_ORIGINAL_IMAGE: true
       KIOSK_TRANSITION: 'cross-fade'
