@@ -1,7 +1,7 @@
 services:
 
   qbittorrent:
-    image: linuxserver/qbittorrent:5.0.1
+    image: linuxserver/qbittorrent:5.1.2
     container_name: qbittorrent
     environment:
       PUID: ${PUID}
@@ -58,7 +58,7 @@ services:
       TZ: ${TZ}
       UMASK_SET: 022 #optional
     volumes:
-      - ${MEDIADIR}:/media
+      - ${MEDIADIR}/series:/series
       - ${DLDIR}:/downloads
       - ${DATADIR}/sonarr/config:/config
     dns:
@@ -88,4 +88,19 @@ services:
     depends_on:
       - prowlarr
       - qbittorrent
+    restart: unless-stopped
+
+  bazarr:
+    image: lscr.io/linuxserver/bazarr
+    container_name: bazarr
+    environment:
+      PUID: ${PUID}
+      PGID: ${PGID}
+      TZ: ${TZ}
+    volumes:
+      - ${DATADIR}/bazarr/config:/config
+      - ${MEDIADIR}/movies:/movies
+      - ${MEDIADIR}/series:/series
+    ports:
+      - 6767:6767
     restart: unless-stopped
