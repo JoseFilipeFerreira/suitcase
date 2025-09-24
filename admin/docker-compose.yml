@@ -74,6 +74,7 @@ services:
     devices:
       - /dev/sda
       - /dev/sdb
+      - /dev/sdc
       - /dev/nvme0n1
 
   wg-easy:
