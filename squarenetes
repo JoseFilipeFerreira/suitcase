@@ -11,6 +11,7 @@ case "$(hostname)" in
         projects=(
             "admin"
             "arrsuite"
+            "games"
             "homeassistant"
             "immich"
             "media"
