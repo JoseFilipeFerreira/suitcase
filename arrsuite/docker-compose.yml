@@ -21,6 +21,24 @@ services:
       - ${PORT_TORRENT}:${PORT_TORRENT}/udp
     restart: unless-stopped
 
+  jellyseerr:
+    image: fallenbagel/jellyseerr
+    container_name: jellyseerr
+    environment:
+      TZ: ${TZ}
+    ports:
+      - 5055:5055
+    volumes:
+      - ${DATADIR}/jellyseerr/config:/app/config
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://localhost:5055/api/v1/status || exit 1
+      start_period: 20s
+      timeout: 3s
+      interval: 15s
+      retries: 3
+    restart: unless-stopped
+
+
   flaresolverr:
     image: flaresolverr/flaresolverr
     container_name: flaresolverr
