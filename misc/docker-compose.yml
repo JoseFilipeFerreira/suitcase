@@ -19,6 +19,15 @@ services:
       - ${DATADIR}/mapper/export:/export
       - ${MEDIADIR}/backup:/images:ro
 
+  filmcompare:
+    image: josefilipeferreira/filmcompare
+    container_name: filmcompare
+    restart: unless-stopped
+    ports:
+      - 5000:5000
+    volumes:
+      - ${DATADIR}/filmcompare/data:/data
+      - ${DATADIR}/filmcompare/logs:/logs
 
   jbb:
     image: josefilipeferreira/jbb.py
@@ -44,3 +53,12 @@ services:
       DOCKER_ENABLE_SECURITY: false
       INSTALL_BOOK_AND_ADVANCED_HTML_OPS: false
       SYSTEM_ROOTURIPATH: /pdf
+
+  planning-poker:
+    image: docker.io/axeleroy/self-host-planning-poker
+    ports:
+      - 8666:8000
+    environment:
+      APP_ROOT: /poker
+    volumes:
+      - ${DATADIR}/planning-poker/data:/data
