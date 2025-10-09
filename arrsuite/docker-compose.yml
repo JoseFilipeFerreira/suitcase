@@ -20,6 +20,11 @@ services:
       - ${PORT_TORRENT}:${PORT_TORRENT}
       - ${PORT_TORRENT}:${PORT_TORRENT}/udp
     restart: unless-stopped
+    labels:
+      com.plato.category: "Download"
+      com.plato.subtitle: "Torrent Client"
+      com.plato.ui-port: 8090
+      com.plato.importance: 5
 
   jellyseerr:
     image: fallenbagel/jellyseerr
@@ -37,6 +42,10 @@ services:
       interval: 15s
       retries: 3
     restart: unless-stopped
+    labels:
+      com.plato.category: "Media"
+      com.plato.subtitle: "Media Request"
+      com.plato.importance: 4
 
 
   flaresolverr:
@@ -48,44 +57,6 @@ services:
       - 8191:8191
     dns:
       - 1.1.1.1
-    restart: unless-stopped
-
-  prowlarr:
-    image: linuxserver/prowlarr:develop
-    container_name: prowlarr
-    environment:
-      PUID: ${PUID}
-      PGID: ${PGID}
-      TZ: ${TZ}
-    volumes:
-      - ${DATADIR}/prowlarr/config:/config
-    ports:
-      - 9696:9696
-    dns:
-      - 1.1.1.1
-    depends_on:
-      - flaresolverr
-    restart: unless-stopped
-
-  sonarr:
-    image: linuxserver/sonarr
-    container_name: sonarr
-    environment:
-      PUID: ${PUID}
-      PGID: ${PGID}
-      TZ: ${TZ}
-      UMASK_SET: 022 #optional
-    volumes:
-      - ${MEDIADIR}/series:/series
-      - ${DLDIR}:/downloads
-      - ${DATADIR}/sonarr/config:/config
-    dns:
-      - 1.1.1.1
-    ports:
-      - 8989:8989
-    depends_on:
-      - prowlarr
-      - qbittorrent
     restart: unless-stopped
 
   radarr:
@@ -107,6 +78,57 @@ services:
       - prowlarr
       - qbittorrent
     restart: unless-stopped
+    labels:
+      com.plato.category: "Download"
+      com.plato.subtitle: "Manage Movies"
+      com.plato.importance: 4
+
+  sonarr:
+    image: linuxserver/sonarr
+    container_name: sonarr
+    environment:
+      PUID: ${PUID}
+      PGID: ${PGID}
+      TZ: ${TZ}
+      UMASK_SET: 022 #optional
+    volumes:
+      - ${MEDIADIR}/series:/series
+      - ${DLDIR}:/downloads
+      - ${DATADIR}/sonarr/config:/config
+    dns:
+      - 1.1.1.1
+    ports:
+      - 8989:8989
+    depends_on:
+      - prowlarr
+      - qbittorrent
+    restart: unless-stopped
+    labels:
+      com.plato.category: "Download"
+      com.plato.subtitle: "Manage Series"
+      com.plato.importance: 3
+
+  prowlarr:
+    image: linuxserver/prowlarr:develop
+    container_name: prowlarr
+    environment:
+      PUID: ${PUID}
+      PGID: ${PGID}
+      TZ: ${TZ}
+    volumes:
+      - ${DATADIR}/prowlarr/config:/config
+    ports:
+      - 9696:9696
+    dns:
+      - 1.1.1.1
+    depends_on:
+      - flaresolverr
+    restart: unless-stopped
+    labels:
+      com.plato.category: "Download"
+      com.plato.subtitle: "Manage Subtitles"
+      com.plato.importance: 2
+
 
   bazarr:
     image: lscr.io/linuxserver/bazarr
@@ -122,3 +144,7 @@ services:
     ports:
       - 6767:6767
     restart: unless-stopped
+    labels:
+      com.plato.category: "Download"
+      com.plato.subtitle: "Automatic Subtitles"
+      com.plato.importance: 1

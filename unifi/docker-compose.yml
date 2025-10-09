@@ -12,7 +12,6 @@ services:
     volumes:
       - ${DATADIR}/unifi/config:/config
     ports:
-      - 8443:8443
       - 3478:3478/udp
       - 10001:10001/udp
       - 8080:8080
@@ -21,3 +20,7 @@ services:
       - 6789:6789 #optional
       - 5514:5514/udp #optional
     restart: always
+    labels:
+      com.plato.category: "Infrastructure"
+      com.plato.subtitle: "Unifi Manager"
+      com.plato.importance: 7

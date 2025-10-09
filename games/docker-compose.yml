@@ -28,6 +28,10 @@ services:
       romm-db:
         condition: service_healthy
         restart: true
+    labels:
+      com.plato.category: "Media"
+      com.plato.subtitle: "Game Emulator"
+      com.plato.importance: 1
 
   romm-db:
     image: mariadb:latest

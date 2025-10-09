@@ -14,6 +14,10 @@ services:
     devices:
       - /dev/serial/by-id/usb-ITEAD_SONOFF_Zigbee_3.0_USB_Dongle_Plus_V2_20230804164414-if00:/dev/ttyACM0
       # - /dev/ttyACM0:/dev/ttyACM0
+    labels:
+      com.plato.category: "Infrastructure"
+      com.plato.subtitle: "Zigbee coordinator"
+      com.plato.importance: 2
 
   mosquitto:
     image: eclipse-mosquitto
@@ -27,9 +31,9 @@ services:
       - ${DATADIR}/mosquitto/log:/mosquitto/log
     restart: unless-stopped
 
-  homeassistant:
+  home-assistant:
     image: ghcr.io/home-assistant/home-assistant:stable
-    container_name: homeassistant
+    container_name: home-assistant
     restart: unless-stopped
     environment:
       TZ: ${TZ}
@@ -43,6 +47,11 @@ services:
       - zigbee2mqtt
     volumes:
       - ${DATADIR}/homeassistant/config:/config
+    labels:
+      com.plato.category: "Botnet"
+      com.plato.subtitle: "Home Automation"
+      com.plato.ui-port: 8123
+      com.plato.importance: 1
 
 
   homeassistant-piper:

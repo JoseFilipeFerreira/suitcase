@@ -1,13 +1,45 @@
 services:
-  homer:
-    image: b4bz/homer
-    container_name: homer
+  plato:
+    image: josefilipeferreira/plato
+    container_name: plato
     volumes:
-      - ${DATADIR}/homer/assets:/www/assets
+      - /etc/nginx:/etc/nginx:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ${DATADIR}/plato/custom:/www/assets/custom:ro
+      - ${DATADIR}/plato/icons:/www/assets/icons
+    environment:
+      HOSTNAME: "kiwi"
+      CATEGORY_ICONS: "Botnet=fas fa-cloud, Media=fas fa-photo-video, Download=fas fa-download, Utilities=fas fa-toolbox, Infrastructure=fas fa-tasks-alt"
+      TITLE: "Kiwi dashboard"
+      SUBTITLE: "Jff"
+      LOGO: "assets/custom/logo.png"
+      COLOR_LIGHT_HIGHLIGHT-PRIMARY: "#D27E99"
+      COLOR_LIGHT_HIGHLIGHT-SECONDARY: "#D27E99"
+      COLOR_LIGHT_HIGHLIGHT-HOVER: "#938AA9"
+      COLOR_LIGHT_BACKGROUND: "#DCD7BA"
+      COLOR_LIGHT_CARD-BACKGROUND: "#C8C093"
+      COLOR_LIGHT_TEXT: "#16161D"
+      COLOR_LIGHT_TEXT-HEADER: "#16161D"
+      COLOR_LIGHT_TEXT-TITLE: "#1F1F28"
+      COLOR_LIGHT_TEXT-SUBTITLE: "#2A2A37"
+      COLOR_LIGHT_CARD-SHADOW: "rgba(0, 0, 0, 0.2)"
+      COLOR_LIGHT_LINK: "#3273DC"
+      COLOR_LIGHT_LINK-HOVER: "#FFDD57"
+      COLORS_DARK_HIGHLIGHT-PRIMARY: "#957fb8"
+      COLORS_DARK_HIGHLIGHT-SECONDARY: "#957fb8"
+      COLORS_DARK_HIGHLIGHT-HOVER: "#938AA9"
+      COLORS_DARK_BACKGROUND: "#1F1F28"
+      COLORS_DARK_CARD-BACKGROUND: "#2A2A37"
+      COLORS_DARK_TEXT: "#DCD7BA"
+      COLORS_DARK_TEXT-HEADER: "#DCD7BA"
+      COLORS_DARK_TEXT-TITLE: "#DCD7BA"
+      COLORS_DARK_TEXT-SUBTITLE: "#C8C093"
+      COLORS_DARK_CARD-SHADOW: "rgba(0, 0, 0, 0.5)"
+      COLORS_DARK_LINK: "#3273DC"
+      COLORS_DARK_LINK-HOVER: "#FFDD57"
+    restart: unless-stopped
     ports:
       - 8084:8080
-    restart: unless-stopped
-    user: ${PUID}:${PGID}
 
   speedtest-tracker:
     image: lscr.io/linuxserver/speedtest-tracker
@@ -25,6 +57,11 @@ services:
     volumes:
       - ${DATADIR}/speedtest-tracker/config:/config
     restart: unless-stopped
+    labels:
+      com.plato.category: "Infrastructure"
+      com.plato.name: "Speedtest"
+      com.plato.subtitle: "Speed Tracker"
+      com.plato.importance: 3
 
   gotify:
     image: gotify/server
@@ -36,27 +73,28 @@ services:
     restart: unless-stopped
     volumes:
       - ${DATADIR}/gotify/data:/app/data
+    labels:
+      com.plato.category: "Infrastructure"
+      com.plato.subtitle: "Send Notifications"
+      com.plato.importance: 6
 
   watchtower:
     image: containrrr/watchtower
     container_name: watchtower
     environment:
+      TZ: ${TZ}
+      WATCHTOWER_MONITOR_ONLY: true
       WATCHTOWER_POLL_INTERVAL: 86400
-      WATCHTOWER_TIMEOUT: 60s
-      WATCHTOWER_INCLUDE_STOPPED: true
-      WATCHTOWER_REVIVE_STOPPED: true
-      WATCHTOWER_CLEANUP: true
       WATCHTOWER_NO_STARTUP_MESSAGE: true
       WATCHTOWER_NOTIFICATIONS: gotify
       WATCHTOWER_NOTIFICATION_GOTIFY_URL: http://192.168.1.80:2323/
       WATCHTOWER_NOTIFICATION_GOTIFY_TOKEN: /gotify_token
-      TZ: ${TZ}
     depends_on:
       - gotify
     restart: unless-stopped
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - ${DATADIR}/watchtower/gotify_token:/gotify_token
+      - ${DATADIR}/watchtower/gotify_token:/gotify_token:ro
 
   scrutiny:
     container_name: scrutiny
@@ -75,15 +113,21 @@ services:
       - /dev/sda
       - /dev/sdb
       - /dev/sdc
-      - /dev/nvme0n1
+    labels:
+      com.plato.category: "Infrastructure"
+      com.plato.subtitle: "Disk Health"
+      com.plato.importance: 5
 
   wg-easy:
-    image: ghcr.io/wg-easy/wg-easy:latest
+    image: ghcr.io/wg-easy/wg-easy:15
     container_name: wg-easy
     environment:
-      WG_HOST: vpn.${WEBSITE}
-      WG_PORT: ${PORT_WIREGUARD}
-      PASSWORD_HASH: ${WG_EASY_PASSWORD_HASH}
+      INIT_ENABLED: true
+      INIT_USERNAME: ${WG_USERNAME}
+      INIT_PASSWORD: ${WG_PASSWORD}
+      INIT_HOST: vpn.${WEBSITE}
+      INIT_PORT: ${PORT_WIREGUARD}
+      INIT_DNS: ${DNSMASQ_IP}
     networks:
       wg:
         ipv4_address: 10.42.42.42
@@ -104,6 +148,23 @@ services:
       - net.ipv6.conf.all.disable_ipv6=0
       - net.ipv6.conf.all.forwarding=1
       - net.ipv6.conf.default.forwarding=1
+    labels:
+      com.plato.category: "Infrastructure"
+      com.plato.name: "VPN"
+      com.plato.subtitle: "Wireguard VPN"
+      com.plato.selfhst-icon: "wireguard"
+      com.plato.ui-port: 51821
+      com.plato.importance: 1
+
+  dnsmasq:
+    image: andyshinn/dnsmasq
+    container_name: dnsmasq
+    volumes:
+      - ${DATADIR}/dnsmasq/dnsmasq.conf:/etc/dnsmasq.conf:ro
+    networks:
+      wg:
+        ipv4_address: ${DNSMASQ_IP}
+    restart: unless-stopped
 
 networks:
   wg:

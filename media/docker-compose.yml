@@ -19,17 +19,11 @@ services:
       - ${DATADIR}/jellyfin/cache:/cache
       - ${DATADIR}/jellyfin/config:/config
     restart: unless-stopped
-
-  jellystat-postgres:
-    image: postgres:15.2
-    container_name: jellystat-postgres
-    environment:
-      POSTGRES_DB: 'jfstat'
-      POSTGRES_USER: ${JELLYSTAT_DB_USER}
-      POSTGRES_PASSWORD: ${JELLYSTAT_DB_PASSWORD}
-    volumes:
-      - ${DATADIR}/jellystat-postgres/data:/var/lib/postgresql/data
-    restart: unless-stopped
+    labels:
+      com.plato.category: "Media"
+      com.plato.subtitle: "Media Streaming"
+      com.plato.ui-port: 8096
+      com.plato.importance: 5
 
   jellystat:
     image: cyfershepard/jellystat:latest
@@ -49,6 +43,21 @@ services:
       - jellystat-postgres
       - jellyfin
     restart: unless-stopped
+    labels:
+      com.plato.category: "Infrastructure"
+      com.plato.subtitle: "Watch Stats"
+      com.plato.importance: 4
+
+  jellystat-postgres:
+    image: postgres:15.2
+    container_name: jellystat-postgres
+    environment:
+      POSTGRES_DB: 'jfstat'
+      POSTGRES_USER: ${JELLYSTAT_DB_USER}
+      POSTGRES_PASSWORD: ${JELLYSTAT_DB_PASSWORD}
+    volumes:
+      - ${DATADIR}/jellystat-postgres/data:/var/lib/postgresql/data
+    restart: unless-stopped
 
   iron-cake:
     image: josefilipeferreira/iron-cake
@@ -57,13 +66,16 @@ services:
       - 8000:8000
     volumes:
       - ${DATADIR}/iron-cake/thumb:/thumb
-      - ${DATADIR}/mapper/export:/map:ro
       - ${MEDIADIR}/anime:/anime:ro
       - ~/.local/share/music:/music:ro
       - ~/.local/share/wallpapers:/walls:ro
       - ~/repos/receitas/receitas:/receitas:ro
       - ~/share:/share:ro
     restart: unless-stopped
+    labels:
+      com.plato.category: "Botnet"
+      com.plato.subtitle: "Simple Webserver"
+      com.plato.importance: 5
 
   calibre-web:
     image: linuxserver/calibre-web:nightly
@@ -82,6 +94,11 @@ services:
     depends_on:
       - calibre
     restart: unless-stopped
+    labels:
+      com.plato.category: "Media"
+      com.plato.name: "Biblioteca dos Nhos"
+      com.plato.subtitle: "Book DB Frontend"
+      com.plato.importance: 3
 
   calibre:
     image: linuxserver/calibre:latest
@@ -94,6 +111,11 @@ services:
       - ${DATADIR}/calibre/config:/config
       - ${DATADIR}/calibre/import:/import
     ports:
-      - 8082:8080
-      - 8081:8081
+      # - 8082:8080
+      # - 8081:8081
+      - 8181:8181
     restart: unless-stopped
+    labels:
+      com.plato.category: "Media"
+      com.plato.subtitle: "Book DB"
+      com.plato.importance: 2

@@ -25,6 +25,12 @@ services:
     restart: unless-stopped
     healthcheck:
       disable: false
+    labels:
+      com.plato.category: "Botnet"
+      com.plato.name: "Immich"
+      com.plato.subtitle: "Manage Photos"
+      com.plato.selfhst-icon: "immich"
+      com.plato.importance: 3
 
   immich-machine-learning:
     container_name: immich-machine-learning

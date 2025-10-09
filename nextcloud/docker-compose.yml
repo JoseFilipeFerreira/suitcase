@@ -52,3 +52,7 @@ services:
     depends_on:
       - nextcloud-mariadb
       - nextcloud-redis
+    labels:
+      com.plato.category: "Botnet"
+      com.plato.subtitle: "Google Killer"
+      com.plato.importance: 4

@@ -1,13 +1,17 @@
 services:
 
-  actual-server:
+  actual-budget:
     image: actualbudget/actual-server:latest
-    container_name: actual-server
+    container_name: actual-budget
     restart: unless-stopped
     ports:
       - 5006:5006
     volumes:
       - ${DATADIR}/actual-server/data:/data
+    labels:
+      com.plato.category: "Botnet"
+      com.plato.subtitle: "Manage Money"
+      com.plato.importance: 2
 
   mapper:
     image: josefilipeferreira/mapper
@@ -40,7 +44,7 @@ services:
     restart: unless-stopped
 
   stirling-pdf:
-    image: stirlingtools/stirling-pdf:latest
+    image: stirlingtools/stirling-pdf
     container_name: stirling-pdf
     ports:
       - 9091:8080
@@ -53,12 +57,22 @@ services:
       DOCKER_ENABLE_SECURITY: false
       INSTALL_BOOK_AND_ADVANCED_HTML_OPS: false
       SYSTEM_ROOTURIPATH: /pdf
+    labels:
+      com.plato.category: "Utilities"
+      com.plato.subtitle: "All PDF Operations"
+      com.plato.importance: 2
 
   planning-poker:
     image: docker.io/axeleroy/self-host-planning-poker
+    container_name: planning-poker
     ports:
       - 8666:8000
     environment:
       APP_ROOT: /poker
     volumes:
       - ${DATADIR}/planning-poker/data:/data
+    labels:
+      com.plato.category: "Utilities"
+      com.plato.name: "Poker"
+      com.plato.subtitle: "Planning Poker"
+      com.plato.importance: 1
