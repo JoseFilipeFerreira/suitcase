@@ -50,7 +50,6 @@ services:
     labels:
       com.plato.category: "Botnet"
       com.plato.subtitle: "Home Automation"
-      com.plato.ui-port: 8123
       com.plato.importance: 1
 
 

@@ -128,6 +128,8 @@ services:
       INIT_HOST: vpn.${WEBSITE}
       INIT_PORT: ${PORT_WIREGUARD}
       INIT_DNS: ${DNSMASQ_IP}
+    depends_on:
+      - dnsmasq
     networks:
       wg:
         ipv4_address: 10.42.42.42
@@ -153,7 +155,6 @@ services:
       com.plato.name: "VPN"
       com.plato.subtitle: "Wireguard VPN"
       com.plato.selfhst-icon: "wireguard"
-      com.plato.ui-port: 51821
       com.plato.importance: 1
 
   dnsmasq:

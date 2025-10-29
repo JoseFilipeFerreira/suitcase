@@ -8,7 +8,7 @@ services:
       PGID: ${PGID}
       TZ: ${TZ}
       TORRENTING_PORT: ${PORT_TORRENT}
-      WEBUI_PORT: 8090
+      WEBUI_PORT: 8080
     dns:
       - 1.1.1.1
     volumes:
@@ -16,14 +16,13 @@ services:
       - ${DLDIR}:/downloads
       - ${DATADIR}/qbittorrent/config:/config
     ports:
-      - 8090:8090
+      - 8090:8080
       - ${PORT_TORRENT}:${PORT_TORRENT}
       - ${PORT_TORRENT}:${PORT_TORRENT}/udp
     restart: unless-stopped
     labels:
       com.plato.category: "Download"
       com.plato.subtitle: "Torrent Client"
-      com.plato.ui-port: 8090
       com.plato.importance: 5
 
   jellyseerr:
