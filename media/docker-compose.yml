@@ -22,8 +22,26 @@ services:
     labels:
       com.plato.category: "Media"
       com.plato.subtitle: "Media Streaming"
-      com.plato.ui-port: 8096
       com.plato.importance: 5
+
+  xteve:
+    image: dnsforge/xteve
+    container_name: xteve
+    restart: unless-stopped
+    ports:
+      - 34400:34400
+    volumes:
+      - ${DATADIR}/xteve/config:/home/xteve/conf
+      - ${DATADIR}/xteve/tmp:/tmp/xteve
+    environment:
+      TZ: ${TZ}
+      PUID: ${PUID}
+      PGID: ${PGID}
+    labels:
+      com.plato.category: "Infrastructure"
+      com.plato.subtitle: "IPTV"
+      com.plato.endpoint: "/web"
+      com.plato.importance: 0
 
   jellystat:
     image: cyfershepard/jellystat:latest
@@ -111,11 +129,10 @@ services:
       - ${DATADIR}/calibre/config:/config
       - ${DATADIR}/calibre/import:/import
     ports:
-      # - 8082:8080
-      # - 8081:8081
       - 8181:8181
     restart: unless-stopped
     labels:
       com.plato.category: "Media"
       com.plato.subtitle: "Book DB"
+      com.plato.force-https: True
       com.plato.importance: 2
