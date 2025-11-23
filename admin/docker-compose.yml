@@ -1,9 +1,25 @@
 services:
+  caddy:
+    image: lucaslorentz/caddy-docker-proxy
+    container_name: caddy
+    ports:
+      - 80:80
+      - 443:443/tcp
+      - 443:443/udp
+    environment:
+      - CADDY_INGRESS_NETWORKS=caddy
+    networks:
+      - caddy
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ${DATADIR}/caddy/data:/data
+      - ${DATADIR}/caddy/config:/config
+    restart: unless-stopped
+
   plato:
     image: josefilipeferreira/plato
     container_name: plato
     volumes:
-      - /etc/nginx:/etc/nginx:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ${DATADIR}/plato/custom:/www/assets/custom:ro
       - ${DATADIR}/plato/icons:/www/assets/icons
@@ -71,9 +87,15 @@ services:
     environment:
       GOTIFY_DEFAULTUSER_PASS: ${GOTIFY_DEFAULTUSER_PASS}
     restart: unless-stopped
+    networks:
+      - caddy
     volumes:
       - ${DATADIR}/gotify/data:/app/data
     labels:
+      # Caddy
+      caddy: gotify.${WEBSITE}
+      caddy.reverse_proxy: "{{upstreams 80}}"
+      # Plato
       com.plato.category: "Infrastructure"
       com.plato.subtitle: "Send Notifications"
       com.plato.importance: 6
@@ -176,3 +198,5 @@ networks:
       config:
         - subnet: 10.42.42.0/24
         - subnet: fdcc:ad94:bacf:61a3::/64
+  caddy:
+    external: true

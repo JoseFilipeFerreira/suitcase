@@ -14,11 +14,15 @@ services:
       MYSQL_USER: ${NEXTCLOUD_MYSQL_USER}
       MARIADB_AUTO_UPGRADE: 1
       MARIADB_DISABLE_UPGRADE_BACKUP: 1
+    networks:
+      - default
 
   nextcloud-redis:
     image: redis:alpine
     container_name: nextcloud-redis
     restart: unless-stopped
+    networks:
+      - default
 
   nextcloud-cron:
     image: nextcloud:apache
@@ -30,6 +34,8 @@ services:
     depends_on:
       - nextcloud-mariadb
       - nextcloud-redis
+    networks:
+      - default
 
   nextcloud:
     image: nextcloud:apache
@@ -52,7 +58,19 @@ services:
     depends_on:
       - nextcloud-mariadb
       - nextcloud-redis
+    networks:
+      - caddy
+      - default
     labels:
+      # Caddy
+      caddy: cloud.${WEBSITE}
+      caddy.reverse_proxy: "{{upstreams 80}}"
+      # Plato
       com.plato.category: "Botnet"
       com.plato.subtitle: "Google Killer"
       com.plato.importance: 4
+
+networks:
+  default:
+  caddy:
+    external: true

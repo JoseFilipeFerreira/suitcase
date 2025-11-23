@@ -2,10 +2,20 @@
 # 2D single-server Kuerbenetes-ish docker-compose manager with machine
 set -euo pipefail
 
+
+
 GREEN='\033[0;32m'
 RED='\033[0;31m'
 RESET='\033[0m'
 
+# Check Caddy Docker Network
+NETWORK_NAME="caddy"
+if ! docker network ls --format '{{.Name}}' | grep -wq "$NETWORK_NAME"; then
+    echo -e "${GREEN}Creating docker network '$NETWORK_NAME'${RESET}"
+    docker network create "$NETWORK_NAME"
+fi
+
+# Choose Project List
 case "$(hostname)" in
     "kiwi")
         projects=(
@@ -35,8 +45,21 @@ if [[ $# -lt 1 ]]; then
     exit 1
 fi
 
+# Start Docker Projects
 for project in "${projects[@]}"; do
     echo -e "${GREEN}Running 'docker-compose $*' in $project${RESET}"
-    (cd "$project" && docker-compose "$@")
+    case "$1" in
+        "update")
+        (
+            cd "$project" &&
+            docker-compose down &&
+            docker-compose pull &&
+            docker-compose up -d
+        )
+        ;;
+        *)
+        (cd "$project" && docker-compose "$@")
+        ;;
+    esac
 done
 

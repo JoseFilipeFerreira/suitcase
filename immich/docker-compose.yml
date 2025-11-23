@@ -25,7 +25,14 @@ services:
     restart: unless-stopped
     healthcheck:
       disable: false
+    networks:
+      - caddy
+      - default
     labels:
+      # Caddy
+      caddy: immich.${WEBSITE}
+      caddy.reverse_proxy: "{{upstreams 2283}}"
+      # Plato
       com.plato.category: "Botnet"
       com.plato.name: "Immich"
       com.plato.subtitle: "Manage Photos"
@@ -43,6 +50,8 @@ services:
     restart: unless-stopped
     healthcheck:
       disable: false
+    networks:
+      - default
 
   immich-redis:
     container_name: immich-redis
@@ -50,6 +59,8 @@ services:
     healthcheck:
       test: redis-cli ping || exit 1
     restart: unless-stopped
+    networks:
+      - default
 
   immich-postgres:
     container_name: immich-postgres
@@ -62,6 +73,8 @@ services:
     volumes:
       - ${DATADIR}/immich-postgres/data:/var/lib/postgresql/data
     restart: unless-stopped
+    networks:
+      - default
 
   immich-kiosk:
     image: ghcr.io/damongolding/immich-kiosk:latest
@@ -90,3 +103,8 @@ services:
     restart: unless-stopped
     ports:
       - 3003:3000
+
+networks:
+  default:
+  caddy:
+    external: true

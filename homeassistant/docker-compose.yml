@@ -48,6 +48,11 @@ services:
     volumes:
       - ${DATADIR}/homeassistant/config:/config
     labels:
+      # Caddy
+      caddy: ha.${WEBSITE}
+      ## TODO: very ugly pls fix
+      caddy.reverse_proxy: "192.168.1.80:8123"
+      # Plato
       com.plato.category: "Botnet"
       com.plato.subtitle: "Home Automation"
       com.plato.importance: 1
@@ -91,3 +96,8 @@ services:
     command: --preload-model 'hey_jarvis' --custom-model-dir /custom
     ports:
       - 10400:10400
+
+networks:
+  default:
+  caddy:
+    external: true

@@ -12,7 +12,12 @@ services:
       VERSION: docker
     group_add:
       - "989"
-    network_mode: host
+    ports:
+      - 8096:8096
+      - 8920:8920
+      - 7359:7359/udp
+    networks:
+      - caddy
     volumes:
       - ~/.local/share/music:/music
       - ${MEDIADIR}:/media
@@ -20,6 +25,10 @@ services:
       - ${DATADIR}/jellyfin/config:/config
     restart: unless-stopped
     labels:
+      # Caddy
+      caddy: jellyfin.${WEBSITE}
+      caddy.reverse_proxy: "{{upstreams 8096}}"
+      # Plato
       com.plato.category: "Media"
       com.plato.subtitle: "Media Streaming"
       com.plato.importance: 5
@@ -90,7 +99,19 @@ services:
       - ~/repos/receitas/receitas:/receitas:ro
       - ~/share:/share:ro
     restart: unless-stopped
+    networks:
+      - caddy
     labels:
+      # Caddy
+      caddy: ${WEBSITE}
+      caddy.reverse_proxy: "{{upstreams 8000}}"
+      caddy.basic_auth_0: "/anime* bcrypt"
+      caddy.basic_auth_0.jff: ${PASS1}
+      caddy.basic_auth_0.nifernandes99: ${PASS2}
+      caddy.basic_auth_1: "/receitas* bcrypt"
+      caddy.basic_auth_1.jff: ${PASS1}
+      caddy.basic_auth_1.nifernandes99: ${PASS2}
+      # Plato
       com.plato.category: "Botnet"
       com.plato.subtitle: "Simple Webserver"
       com.plato.importance: 5
@@ -112,7 +133,15 @@ services:
     depends_on:
       - calibre
     restart: unless-stopped
+    networks:
+      - caddy
     labels:
+      # Caddy
+      caddy: ${WEBSITE}
+      caddy.handle: /books*
+      caddy.handle.0_reverse_proxy: "{{upstreams 8083}}"
+      caddy.handle.0_reverse_proxy.header_up: "X-Script-Name /books"
+      # Plato
       com.plato.category: "Media"
       com.plato.name: "Biblioteca dos Nhos"
       com.plato.subtitle: "Book DB Frontend"
@@ -136,3 +165,8 @@ services:
       com.plato.subtitle: "Book DB"
       com.plato.force-https: True
       com.plato.importance: 2
+
+networks:
+  default:
+  caddy:
+    external: true

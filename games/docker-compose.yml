@@ -28,7 +28,14 @@ services:
       romm-db:
         condition: service_healthy
         restart: true
+    networks:
+      - caddy
+      - default
     labels:
+      # Caddy
+      caddy: games.${WEBSITE}
+      caddy.reverse_proxy: "{{upstreams 8080}}"
+      # Plato
       com.plato.category: "Media"
       com.plato.subtitle: "Game Emulator"
       com.plato.importance: 1
@@ -51,3 +58,10 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - default
+
+networks:
+  default:
+  caddy:
+    external: true

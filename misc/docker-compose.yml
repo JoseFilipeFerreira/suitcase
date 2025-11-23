@@ -8,7 +8,13 @@ services:
       - 5006:5006
     volumes:
       - ${DATADIR}/actual-server/data:/data
+    networks:
+      - caddy
     labels:
+      # Caddy
+      caddy: budget.${WEBSITE}
+      caddy.reverse_proxy: "{{upstreams 5006}}"
+      # Plato
       com.plato.category: "Botnet"
       com.plato.subtitle: "Manage Money"
       com.plato.importance: 2
@@ -56,8 +62,13 @@ services:
     environment:
       DOCKER_ENABLE_SECURITY: false
       INSTALL_BOOK_AND_ADVANCED_HTML_OPS: false
-      SYSTEM_ROOTURIPATH: /pdf
+    networks:
+      - caddy
     labels:
+      # Caddy
+      caddy: pdf.${WEBSITE}
+      caddy.reverse_proxy: "{{upstreams 8080}}"
+      # Plato
       com.plato.category: "Utilities"
       com.plato.subtitle: "All PDF Operations"
       com.plato.importance: 2
@@ -67,12 +78,20 @@ services:
     container_name: planning-poker
     ports:
       - 8666:8000
-    environment:
-      APP_ROOT: /poker
     volumes:
       - ${DATADIR}/planning-poker/data:/data
+    networks:
+      - caddy
     labels:
+      # Caddy
+      caddy: poker.${WEBSITE}
+      caddy.reverse_proxy: "{{upstreams 8000}}"
+      # Plato
       com.plato.category: "Utilities"
       com.plato.name: "Poker"
       com.plato.subtitle: "Planning Poker"
       com.plato.importance: 1
+
+networks:
+  caddy:
+    external: true
