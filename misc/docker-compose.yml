@@ -19,26 +19,6 @@ services:
       com.plato.subtitle: "Manage Money"
       com.plato.importance: 2
 
-  mapper:
-    image: josefilipeferreira/mapper
-    container_name: mapper
-    environment:
-      IMAGE_RATIO: 1.6
-    volumes:
-      - ${DATADIR}/mapper/cache:/cache
-      - ${DATADIR}/mapper/export:/export
-      - ${MEDIADIR}/backup:/images:ro
-
-  filmcompare:
-    image: josefilipeferreira/filmcompare
-    container_name: filmcompare
-    restart: unless-stopped
-    ports:
-      - 5000:5000
-    volumes:
-      - ${DATADIR}/filmcompare/data:/data
-      - ${DATADIR}/filmcompare/logs:/logs
-
   jbb:
     image: josefilipeferreira/jbb.py
     container_name: jbb
