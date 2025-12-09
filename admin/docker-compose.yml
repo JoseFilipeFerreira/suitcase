@@ -153,6 +153,7 @@ services:
     depends_on:
       - dnsmasq
     networks:
+      caddy:
       wg:
         ipv4_address: 10.42.42.42
         ipv6_address: fdcc:ad94:bacf:61a3::2a
@@ -173,6 +174,10 @@ services:
       - net.ipv6.conf.all.forwarding=1
       - net.ipv6.conf.default.forwarding=1
     labels:
+      # Caddy
+      caddy: vpn.${WEBSITE}
+      caddy.reverse_proxy: "{{upstreams 51821}}"
+      # Plato
       com.plato.category: "Infrastructure"
       com.plato.name: "VPN"
       com.plato.subtitle: "Wireguard VPN"
@@ -185,6 +190,7 @@ services:
     volumes:
       - ${DATADIR}/dnsmasq/dnsmasq.conf:/etc/dnsmasq.conf:ro
     networks:
+      caddy:
       wg:
         ipv4_address: ${DNSMASQ_IP}
     restart: unless-stopped
