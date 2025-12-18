@@ -29,19 +29,12 @@ services:
       - ${DATADIR}/jbb/music:/music
     restart: unless-stopped
 
-  stirling-pdf:
-    image: stirlingtools/stirling-pdf
-    container_name: stirling-pdf
+  bentopdf:
+    image: bentopdf/bentopdf-simple:latest
+    container_name: bentopdf
     ports:
-      - 9091:8080
-    volumes:
-      - ${DATADIR}/stirling-pdf/trainingData:/usr/share/tessdata
-      - ${DATADIR}/stirling-pdf/configs:/configs
-      - ${DATADIR}/stirling-pdf/customFiles:/customFiles
-      - ${DATADIR}/stirling-pdf/logs:/logs
-    environment:
-      DOCKER_ENABLE_SECURITY: false
-      INSTALL_BOOK_AND_ADVANCED_HTML_OPS: false
+      - 3004:8080
+    restart: unless-stopped
     networks:
       - caddy
     labels:
@@ -50,7 +43,7 @@ services:
       caddy.reverse_proxy: "{{upstreams 8080}}"
       # Plato
       com.plato.category: "Utilities"
-      com.plato.subtitle: "All PDF Operations"
+      com.plato.subtitle: "PDF Operations"
       com.plato.importance: 2
 
   planning-poker:
