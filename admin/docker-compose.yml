@@ -100,24 +100,6 @@ services:
       com.plato.subtitle: "Send Notifications"
       com.plato.importance: 6
 
-  watchtower:
-    image: containrrr/watchtower
-    container_name: watchtower
-    environment:
-      TZ: ${TZ}
-      WATCHTOWER_MONITOR_ONLY: true
-      WATCHTOWER_POLL_INTERVAL: 86400
-      WATCHTOWER_NO_STARTUP_MESSAGE: true
-      WATCHTOWER_NOTIFICATIONS: gotify
-      WATCHTOWER_NOTIFICATION_GOTIFY_URL: http://192.168.1.80:2323/
-      WATCHTOWER_NOTIFICATION_GOTIFY_TOKEN: /gotify_token
-    depends_on:
-      - gotify
-    restart: unless-stopped
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - ${DATADIR}/watchtower/gotify_token:/gotify_token:ro
-
   scrutiny:
     container_name: scrutiny
     image: ghcr.io/analogj/scrutiny:master-omnibus
