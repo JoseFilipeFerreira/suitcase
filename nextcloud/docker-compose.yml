@@ -58,6 +58,7 @@ services:
     depends_on:
       - nextcloud-mariadb
       - nextcloud-redis
+      - onlyoffice
     networks:
       - caddy
       - default
@@ -69,6 +70,23 @@ services:
       com.plato.category: "Botnet"
       com.plato.subtitle: "Google Killer"
       com.plato.importance: 4
+
+  onlyoffice:
+    image: onlyoffice/documentserver
+    container_name: onlyoffice
+    restart: unless-stopped
+    environment:
+      JWT_ENALBED: true
+      JWT_SECRET: ${ONLYOFFICE_JWT}
+    ports:
+      - 9983:80
+    networks:
+      - caddy
+      - default
+    labels:
+      # Caddy
+      caddy: onlyoffice.${WEBSITE}
+      caddy.reverse_proxy: "{{upstreams 80}}"
 
 networks:
   default:
