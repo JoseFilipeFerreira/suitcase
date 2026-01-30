@@ -19,7 +19,6 @@ services:
     networks:
       - caddy
     volumes:
-      - ~/.local/share/music:/music
       - ${MEDIADIR}:/media
       - ${DATADIR}/jellyfin/cache:/cache
       - ${DATADIR}/jellyfin/config:/config
@@ -32,25 +31,6 @@ services:
       com.plato.category: "Media"
       com.plato.subtitle: "Media Streaming"
       com.plato.importance: 5
-
-  xteve:
-    image: dnsforge/xteve
-    container_name: xteve
-    restart: unless-stopped
-    ports:
-      - 34400:34400
-    volumes:
-      - ${DATADIR}/xteve/config:/home/xteve/conf
-      - ${DATADIR}/xteve/tmp:/tmp/xteve
-    environment:
-      TZ: ${TZ}
-      PUID: ${PUID}
-      PGID: ${PGID}
-    labels:
-      com.plato.category: "Infrastructure"
-      com.plato.subtitle: "IPTV"
-      com.plato.endpoint: "/web"
-      com.plato.importance: 0
 
   jellystat:
     image: cyfershepard/jellystat:latest
