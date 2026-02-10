@@ -1,5 +1,48 @@
 services:
 
+  home-assistant:
+    image: ghcr.io/home-assistant/home-assistant:stable
+    container_name: home-assistant
+    restart: unless-stopped
+    environment:
+      TZ: ${TZ}
+    network_mode: host
+    privileged: true
+    depends_on:
+      - openwakeword
+      - whisper
+      - piper
+      - mosquitto
+      - zigbee2mqtt
+      - esphome
+    volumes:
+      - ${DATADIR}/homeassistant/config:/config
+    labels:
+      # Caddy
+      caddy: ha.${WEBSITE}
+      ## TODO: very ugly pls fix
+      caddy.reverse_proxy: "192.168.1.80:8123"
+      # Plato
+      com.plato.category: "Botnet"
+      com.plato.subtitle: "Home Automation"
+      com.plato.importance: 1
+
+  esphome:
+    container_name: esphome
+    image: ghcr.io/esphome/esphome
+    volumes:
+      - ${DATADIR}/esphome/config:/config
+      - /etc/localtime:/etc/localtime:ro
+    devices:
+      - /dev/ttyACM1:/dev/ttyACM1
+    restart: always
+    privileged: true
+    network_mode: host
+    labels:
+      com.plato.category: "Infrastructure"
+      com.plato.subtitle: "DIY coordinator"
+      com.plato.importance: 2
+
   zigbee2mqtt:
     container_name: zigbee2mqtt
     image: koenkk/zigbee2mqtt
@@ -31,38 +74,11 @@ services:
       - ${DATADIR}/mosquitto/log:/mosquitto/log
     restart: unless-stopped
 
-  home-assistant:
-    image: ghcr.io/home-assistant/home-assistant:stable
-    container_name: home-assistant
-    restart: unless-stopped
-    environment:
-      TZ: ${TZ}
-    network_mode: host
-    privileged: true
-    depends_on:
-      - homeassistant-openwakeword
-      - homeassistant-whisper
-      - homeassistant-piper
-      - mosquitto
-      - zigbee2mqtt
-    volumes:
-      - ${DATADIR}/homeassistant/config:/config
-    labels:
-      # Caddy
-      caddy: ha.${WEBSITE}
-      ## TODO: very ugly pls fix
-      caddy.reverse_proxy: "192.168.1.80:8123"
-      # Plato
-      com.plato.category: "Botnet"
-      com.plato.subtitle: "Home Automation"
-      com.plato.importance: 1
-
-
-  homeassistant-piper:
+  piper:
     image: rhasspy/wyoming-piper
-    container_name: homeassistant-piper
+    container_name: piper
     volumes:
-      - ${DATADIR}/homeassistant-piper/data:/data
+      - ${DATADIR}/piper/data:/data
     environment:
       TZ: ${TZ}
     restart: unless-stopped
@@ -70,11 +86,11 @@ services:
     ports:
       - 10200:10200
 
-  homeassistant-whisper:
+  whisper:
     image: rhasspy/wyoming-whisper
-    container_name: homeassistant-whisper
+    container_name: whisper
     volumes:
-      - ${DATADIR}/homeassistant-whisper/data:/data
+      - ${DATADIR}/whisper/data:/data
     environment:
       TZ: ${TZ}
     restart: unless-stopped
@@ -83,13 +99,13 @@ services:
     ports:
       - 10300:10300
 
-  homeassistant-openwakeword:
+  openwakeword:
     image: rhasspy/wyoming-openwakeword
-    container_name: homeassistant-openwakeword
+    container_name: openwakeword
     volumes:
-      - ${DATADIR}/homeassistant-openwakeword/config:/config
-      - ${DATADIR}/homeassistant-openwakeword/data:/data
-      - ${DATADIR}/homeassistant-openwakeword/custom:/custom
+      - ${DATADIR}/openwakeword/config:/config
+      - ${DATADIR}/openwakeword/data:/data
+      - ${DATADIR}/openwakeword/custom:/custom
     environment:
       TZ: ${TZ}
     restart: unless-stopped
