@@ -49,10 +49,17 @@ fi
 for project in "${projects[@]}"; do
     echo -e "${GREEN}Running 'docker-compose $*' in $project${RESET}"
     case "$1" in
-        "update")
+        "restart")
         (
             cd "$project" &&
             docker-compose down &&
+            docker-compose pull &&
+            docker-compose up -d
+        )
+        ;;
+        "update")
+        (
+            cd "$project" &&
             docker-compose pull &&
             docker-compose up -d
         )
