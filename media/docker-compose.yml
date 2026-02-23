@@ -146,6 +146,30 @@ services:
       plato.force-https: True
       plato.importance: 2
 
+  navidrome:
+    image: deluan/navidrome
+    container_name: navidrome
+    user: ${PUID}:${PGID}
+    ports:
+      - 4533:4533
+    restart: unless-stopped
+    environment:
+      ND_ENABLESHARING: true
+      ND_DEFAULTSHAREEXPIRATION: 168h
+    volumes:
+      - ${DATADIR}/navidrome/data:/data
+      - ~/.local/share/music:/music:ro
+    networks:
+      - caddy
+    labels:
+      # Caddy
+      caddy: music.${WEBSITE}
+      caddy.reverse_proxy: "{{upstreams 4533}}"
+      # Plato
+      plato.category: "Media"
+      plato.subtitle: "Music Streaming"
+      plato.importance: 0
+
 networks:
   default:
   caddy:
