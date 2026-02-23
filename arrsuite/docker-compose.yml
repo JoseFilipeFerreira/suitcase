@@ -22,7 +22,7 @@ services:
     restart: unless-stopped
     labels:
       com.plato.category: "Download"
-      com.plato.subtitle: "Torrent Client"
+      com.plato.subtitle: "Torrent"
       com.plato.importance: 5
 
   seerr:
@@ -47,7 +47,7 @@ services:
       - default
     labels:
       # Caddy
-      caddy: jellyseerr.${WEBSITE}
+      caddy: seerr.${WEBSITE}
       caddy.reverse_proxy: "{{upstreams 5055}}"
       # Plato
       com.plato.category: "Media"
@@ -87,7 +87,7 @@ services:
     restart: unless-stopped
     labels:
       com.plato.category: "Download"
-      com.plato.subtitle: "Manage Movies"
+      com.plato.subtitle: "Movies"
       com.plato.importance: 4
 
   sonarr:
@@ -112,7 +112,7 @@ services:
     restart: unless-stopped
     labels:
       com.plato.category: "Download"
-      com.plato.subtitle: "Manage Series"
+      com.plato.subtitle: "Series"
       com.plato.importance: 3
 
   prowlarr:
@@ -133,7 +133,7 @@ services:
     restart: unless-stopped
     labels:
       com.plato.category: "Download"
-      com.plato.subtitle: "Manage Subtitles"
+      com.plato.subtitle: "Indexers"
       com.plato.importance: 2
 
 
@@ -155,6 +155,33 @@ services:
       com.plato.category: "Download"
       com.plato.subtitle: "Automatic Subtitles"
       com.plato.importance: 1
+
+  suwayomi:
+    image: ghcr.io/suwayomi/suwayomi-server:stable
+    container_name: suwayomi
+    volumes:
+      - ${MEDIADIR}/manga:/home/suwayomi/.local/share/Tachidesk/downloads
+      - ${DATADIR}/suwayomi/files:/home/suwayomi/.local/share/Tachidesk
+    dns:
+      - 1.1.1.1
+    ports:
+      - 4568:4567
+    depends_on:
+      - flaresolverr
+    environment:
+      TZ: ${TZ}
+      DOWNLOAD_AS_CBZ: true
+      AUTO_DOWNLOAD_CHAPTERS: true
+      AUTO_DOWNLOAD_EXCLUDE_UNREAD: false
+      UPDATE_EXCLUDE_UNREAD: false
+      UPDATE_EXCLUDE_STARTED: false
+      FLARESOLVERR_ENABLED: true
+      FLARESOLVERR_URL: "http://flaresolverr:8191"
+    restart: unless-stopped
+    labels:
+      com.plato.category: "Download"
+      com.plato.subtitle: "Manga"
+      com.plato.importance: 0
 
 networks:
   default:
