@@ -36,9 +36,9 @@ services:
       caddy: games.${WEBSITE}
       caddy.reverse_proxy: "{{upstreams 8080}}"
       # Plato
-      com.plato.category: "Media"
-      com.plato.subtitle: "Game Emulator"
-      com.plato.importance: 1
+      plato.category: "Media"
+      plato.subtitle: "Game Emulator"
+      plato.importance: 1
 
   romm-db:
     image: mariadb:latest

@@ -21,9 +21,9 @@ services:
       - ${PORT_TORRENT}:${PORT_TORRENT}/udp
     restart: unless-stopped
     labels:
-      com.plato.category: "Download"
-      com.plato.subtitle: "Torrent"
-      com.plato.importance: 5
+      plato.category: "Download"
+      plato.subtitle: "Torrent"
+      plato.importance: 5
 
   seerr:
     image: ghcr.io/seerr-team/seerr:latest
@@ -50,9 +50,9 @@ services:
       caddy: seerr.${WEBSITE}
       caddy.reverse_proxy: "{{upstreams 5055}}"
       # Plato
-      com.plato.category: "Media"
-      com.plato.subtitle: "Media Request"
-      com.plato.importance: 4
+      plato.category: "Media"
+      plato.subtitle: "Media Request"
+      plato.importance: 4
 
 
   flaresolverr:
@@ -86,9 +86,9 @@ services:
       - qbittorrent
     restart: unless-stopped
     labels:
-      com.plato.category: "Download"
-      com.plato.subtitle: "Movies"
-      com.plato.importance: 4
+      plato.category: "Download"
+      plato.subtitle: "Movies"
+      plato.importance: 4
 
   sonarr:
     image: linuxserver/sonarr
@@ -111,9 +111,9 @@ services:
       - qbittorrent
     restart: unless-stopped
     labels:
-      com.plato.category: "Download"
-      com.plato.subtitle: "Series"
-      com.plato.importance: 3
+      plato.category: "Download"
+      plato.subtitle: "Series"
+      plato.importance: 3
 
   prowlarr:
     image: linuxserver/prowlarr:develop
@@ -132,9 +132,9 @@ services:
       - flaresolverr
     restart: unless-stopped
     labels:
-      com.plato.category: "Download"
-      com.plato.subtitle: "Indexers"
-      com.plato.importance: 2
+      plato.category: "Download"
+      plato.subtitle: "Indexers"
+      plato.importance: 2
 
 
   bazarr:
@@ -152,9 +152,9 @@ services:
       - 6767:6767
     restart: unless-stopped
     labels:
-      com.plato.category: "Download"
-      com.plato.subtitle: "Automatic Subtitles"
-      com.plato.importance: 1
+      plato.category: "Download"
+      plato.subtitle: "Automatic Subtitles"
+      plato.importance: 1
 
   suwayomi:
     image: ghcr.io/suwayomi/suwayomi-server:stable
@@ -179,9 +179,9 @@ services:
       FLARESOLVERR_URL: "http://flaresolverr:8191"
     restart: unless-stopped
     labels:
-      com.plato.category: "Download"
-      com.plato.subtitle: "Manga"
-      com.plato.importance: 0
+      plato.category: "Download"
+      plato.subtitle: "Manga"
+      plato.importance: 0
 
 networks:
   default:

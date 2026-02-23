@@ -33,11 +33,11 @@ services:
       caddy: immich.${WEBSITE}
       caddy.reverse_proxy: "{{upstreams 2283}}"
       # Plato
-      com.plato.category: "Botnet"
-      com.plato.name: "Immich"
-      com.plato.subtitle: "Manage Photos"
-      com.plato.selfhst-icon: "immich"
-      com.plato.importance: 3
+      plato.category: "Botnet"
+      plato.name: "Immich"
+      plato.subtitle: "Manage Photos"
+      plato.selfhst-icon: "immich"
+      plato.importance: 3
 
   immich-machine-learning:
     container_name: immich-machine-learning

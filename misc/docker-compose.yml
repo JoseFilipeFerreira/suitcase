@@ -15,9 +15,9 @@ services:
       caddy: budget.${WEBSITE}
       caddy.reverse_proxy: "{{upstreams 5006}}"
       # Plato
-      com.plato.category: "Botnet"
-      com.plato.subtitle: "Manage Money"
-      com.plato.importance: 2
+      plato.category: "Botnet"
+      plato.subtitle: "Manage Money"
+      plato.importance: 2
 
   jbb:
     image: josefilipeferreira/jbb.py
@@ -30,7 +30,7 @@ services:
     restart: unless-stopped
 
   bentopdf:
-    image: bentopdf/bentopdf-simple:latest
+    image: ghcr.io/alam00000/bentopdf
     container_name: bentopdf
     ports:
       - 3004:8080
@@ -42,9 +42,9 @@ services:
       caddy: pdf.${WEBSITE}
       caddy.reverse_proxy: "{{upstreams 8080}}"
       # Plato
-      com.plato.category: "Utilities"
-      com.plato.subtitle: "PDF Operations"
-      com.plato.importance: 2
+      plato.category: "Utilities"
+      plato.subtitle: "PDF Operations"
+      plato.importance: 2
 
   planning-poker:
     image: docker.io/axeleroy/self-host-planning-poker
@@ -60,10 +60,10 @@ services:
       caddy: poker.${WEBSITE}
       caddy.reverse_proxy: "{{upstreams 8000}}"
       # Plato
-      com.plato.category: "Utilities"
-      com.plato.name: "Poker"
-      com.plato.subtitle: "Planning Poker"
-      com.plato.importance: 1
+      plato.category: "Utilities"
+      plato.name: "Poker"
+      plato.subtitle: "Planning Poker"
+      plato.importance: 1
 
 networks:
   caddy:

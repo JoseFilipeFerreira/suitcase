@@ -28,9 +28,9 @@ services:
       caddy: jellyfin.${WEBSITE}
       caddy.reverse_proxy: "{{upstreams 8096}}"
       # Plato
-      com.plato.category: "Media"
-      com.plato.subtitle: "Media Streaming"
-      com.plato.importance: 5
+      plato.category: "Media"
+      plato.subtitle: "Media Streaming"
+      plato.importance: 5
 
   jellystat:
     image: cyfershepard/jellystat:latest
@@ -51,9 +51,9 @@ services:
       - jellyfin
     restart: unless-stopped
     labels:
-      com.plato.category: "Infrastructure"
-      com.plato.subtitle: "Watch Stats"
-      com.plato.importance: 4
+      plato.category: "Infrastructure"
+      plato.subtitle: "Watch Stats"
+      plato.importance: 4
 
   jellystat-postgres:
     image: postgres:15.2
@@ -92,9 +92,9 @@ services:
       caddy.basic_auth_1.jff: ${PASS1}
       caddy.basic_auth_1.nifernandes99: ${PASS2}
       # Plato
-      com.plato.category: "Botnet"
-      com.plato.subtitle: "Simple Webserver"
-      com.plato.importance: 5
+      plato.category: "Botnet"
+      plato.subtitle: "Simple Webserver"
+      plato.importance: 5
 
   calibre-web:
     image: linuxserver/calibre-web:nightly
@@ -122,10 +122,10 @@ services:
       caddy.handle.0_reverse_proxy: "{{upstreams 8083}}"
       caddy.handle.0_reverse_proxy.header_up: "X-Script-Name /books"
       # Plato
-      com.plato.category: "Media"
-      com.plato.name: "Biblioteca dos Nhos"
-      com.plato.subtitle: "Book DB Frontend"
-      com.plato.importance: 3
+      plato.category: "Media"
+      plato.name: "Biblioteca dos Nhos"
+      plato.subtitle: "Book DB Frontend"
+      plato.importance: 3
 
   calibre:
     image: linuxserver/calibre:latest
@@ -141,10 +141,10 @@ services:
       - 8181:8181
     restart: unless-stopped
     labels:
-      com.plato.category: "Media"
-      com.plato.subtitle: "Book DB"
-      com.plato.force-https: True
-      com.plato.importance: 2
+      plato.category: "Media"
+      plato.subtitle: "Book DB"
+      plato.force-https: True
+      plato.importance: 2
 
 networks:
   default:

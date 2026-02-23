@@ -23,9 +23,9 @@ services:
       ## TODO: very ugly pls fix
       caddy.reverse_proxy: "192.168.1.80:8123"
       # Plato
-      com.plato.category: "Botnet"
-      com.plato.subtitle: "Home Automation"
-      com.plato.importance: 1
+      plato.category: "Botnet"
+      plato.subtitle: "Home Automation"
+      plato.importance: 1
 
   esphome:
     container_name: esphome
@@ -39,9 +39,9 @@ services:
     privileged: true
     network_mode: host
     labels:
-      com.plato.category: "Infrastructure"
-      com.plato.subtitle: "DIY coordinator"
-      com.plato.importance: 2
+      plato.category: "Infrastructure"
+      plato.subtitle: "DIY coordinator"
+      plato.importance: 2
 
   zigbee2mqtt:
     container_name: zigbee2mqtt
@@ -58,9 +58,9 @@ services:
       - /dev/serial/by-id/usb-ITEAD_SONOFF_Zigbee_3.0_USB_Dongle_Plus_V2_20230804164414-if00:/dev/ttyACM0
       # - /dev/ttyACM0:/dev/ttyACM0
     labels:
-      com.plato.category: "Infrastructure"
-      com.plato.subtitle: "Zigbee coordinator"
-      com.plato.importance: 2
+      plato.category: "Infrastructure"
+      plato.subtitle: "Zigbee coordinator"
+      plato.importance: 2
 
   mosquitto:
     image: eclipse-mosquitto

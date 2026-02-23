@@ -29,30 +29,7 @@ services:
       TITLE: "Kiwi dashboard"
       SUBTITLE: "Jff"
       LOGO: "assets/custom/logo.png"
-      COLOR_LIGHT_HIGHLIGHT-PRIMARY: "#D27E99"
-      COLOR_LIGHT_HIGHLIGHT-SECONDARY: "#D27E99"
-      COLOR_LIGHT_HIGHLIGHT-HOVER: "#938AA9"
-      COLOR_LIGHT_BACKGROUND: "#DCD7BA"
-      COLOR_LIGHT_CARD-BACKGROUND: "#C8C093"
-      COLOR_LIGHT_TEXT: "#16161D"
-      COLOR_LIGHT_TEXT-HEADER: "#16161D"
-      COLOR_LIGHT_TEXT-TITLE: "#1F1F28"
-      COLOR_LIGHT_TEXT-SUBTITLE: "#2A2A37"
-      COLOR_LIGHT_CARD-SHADOW: "rgba(0, 0, 0, 0.2)"
-      COLOR_LIGHT_LINK: "#3273DC"
-      COLOR_LIGHT_LINK-HOVER: "#FFDD57"
-      COLORS_DARK_HIGHLIGHT-PRIMARY: "#957fb8"
-      COLORS_DARK_HIGHLIGHT-SECONDARY: "#957fb8"
-      COLORS_DARK_HIGHLIGHT-HOVER: "#938AA9"
-      COLORS_DARK_BACKGROUND: "#1F1F28"
-      COLORS_DARK_CARD-BACKGROUND: "#2A2A37"
-      COLORS_DARK_TEXT: "#DCD7BA"
-      COLORS_DARK_TEXT-HEADER: "#DCD7BA"
-      COLORS_DARK_TEXT-TITLE: "#DCD7BA"
-      COLORS_DARK_TEXT-SUBTITLE: "#C8C093"
-      COLORS_DARK_CARD-SHADOW: "rgba(0, 0, 0, 0.5)"
-      COLORS_DARK_LINK: "#3273DC"
-      COLORS_DARK_LINK-HOVER: "#FFDD57"
+      THEME: "kanagawa"
     restart: unless-stopped
     ports:
       - 8084:8080
@@ -74,10 +51,10 @@ services:
       - ${DATADIR}/speedtest-tracker/config:/config
     restart: unless-stopped
     labels:
-      com.plato.category: "Infrastructure"
-      com.plato.name: "Speedtest"
-      com.plato.subtitle: "Speed Tracker"
-      com.plato.importance: 3
+      plato.category: "Infrastructure"
+      plato.name: "Speedtest"
+      plato.subtitle: "Speed Tracker"
+      plato.importance: 3
 
   gotify:
     image: gotify/server
@@ -96,9 +73,9 @@ services:
       caddy: gotify.${WEBSITE}
       caddy.reverse_proxy: "{{upstreams 80}}"
       # Plato
-      com.plato.category: "Infrastructure"
-      com.plato.subtitle: "Send Notifications"
-      com.plato.importance: 6
+      plato.category: "Infrastructure"
+      plato.subtitle: "Send Notifications"
+      plato.importance: 6
 
   scrutiny:
     container_name: scrutiny
@@ -118,9 +95,9 @@ services:
       - /dev/sdb
       - /dev/sdc
     labels:
-      com.plato.category: "Infrastructure"
-      com.plato.subtitle: "Disk Health"
-      com.plato.importance: 5
+      plato.category: "Infrastructure"
+      plato.subtitle: "Disk Health"
+      plato.importance: 5
 
   wg-easy:
     image: ghcr.io/wg-easy/wg-easy:15
@@ -162,11 +139,11 @@ services:
       caddy: vpn.${WEBSITE}
       caddy.reverse_proxy: "{{upstreams 51821}}"
       # Plato
-      com.plato.category: "Infrastructure"
-      com.plato.name: "VPN"
-      com.plato.subtitle: "Wireguard VPN"
-      com.plato.selfhst-icon: "wireguard"
-      com.plato.importance: 1
+      plato.category: "Infrastructure"
+      plato.name: "VPN"
+      plato.subtitle: "Wireguard VPN"
+      plato.selfhst-icon: "wireguard"
+      plato.importance: 1
 
   dnsmasq:
     image: andyshinn/dnsmasq
