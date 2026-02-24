@@ -67,9 +67,7 @@ services:
       caddy: cloud.${WEBSITE}
       caddy.reverse_proxy: "{{upstreams 80}}"
       # Plato
-      plato.category: "Botnet"
-      plato.subtitle: "Google Killer"
-      plato.importance: 4
+      plato.category: "Cloud"
 
   onlyoffice:
     image: onlyoffice/documentserver

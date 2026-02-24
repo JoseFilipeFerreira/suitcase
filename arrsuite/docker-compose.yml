@@ -22,8 +22,6 @@ services:
     restart: unless-stopped
     labels:
       plato.category: "Download"
-      plato.subtitle: "Torrent"
-      plato.importance: 5
 
   seerr:
     image: ghcr.io/seerr-team/seerr:latest
@@ -51,8 +49,6 @@ services:
       caddy.reverse_proxy: "{{upstreams 5055}}"
       # Plato
       plato.category: "Media"
-      plato.subtitle: "Media Request"
-      plato.importance: 4
 
 
   flaresolverr:
@@ -87,8 +83,6 @@ services:
     restart: unless-stopped
     labels:
       plato.category: "Download"
-      plato.subtitle: "Movies"
-      plato.importance: 4
 
   sonarr:
     image: linuxserver/sonarr
@@ -112,8 +106,6 @@ services:
     restart: unless-stopped
     labels:
       plato.category: "Download"
-      plato.subtitle: "Series"
-      plato.importance: 3
 
   prowlarr:
     image: linuxserver/prowlarr:develop
@@ -133,8 +125,6 @@ services:
     restart: unless-stopped
     labels:
       plato.category: "Download"
-      plato.subtitle: "Indexers"
-      plato.importance: 2
 
 
   bazarr:
@@ -153,8 +143,6 @@ services:
     restart: unless-stopped
     labels:
       plato.category: "Download"
-      plato.subtitle: "Automatic Subtitles"
-      plato.importance: 1
 
   suwayomi:
     image: ghcr.io/suwayomi/suwayomi-server:stable
@@ -170,18 +158,20 @@ services:
       - flaresolverr
     environment:
       TZ: ${TZ}
+      AUTH_MODE: "simple_login"
+      AUTH_USERNAME: ${SUWAYOMI_USERNAME}
+      AUTH_PASSWORD: ${SUWAYOMI_PASSWORD}
       DOWNLOAD_AS_CBZ: true
       AUTO_DOWNLOAD_CHAPTERS: true
       AUTO_DOWNLOAD_EXCLUDE_UNREAD: false
       UPDATE_EXCLUDE_UNREAD: false
       UPDATE_EXCLUDE_STARTED: false
+      UPDATE_INTERVAL: 6
       FLARESOLVERR_ENABLED: true
       FLARESOLVERR_URL: "http://flaresolverr:8191"
     restart: unless-stopped
     labels:
-      plato.category: "Download"
-      plato.subtitle: "Manga"
-      plato.importance: 0
+      plato.category: "Media"
 
 networks:
   default:

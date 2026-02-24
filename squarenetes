@@ -1,5 +1,5 @@
 #!/bin/bash
-# 2D single-server Kuerbenetes-ish docker-compose manager with machine
+# Kubernetes but flatter and dumber. Manages which docker-compose to startup based on current machine
 set -euo pipefail
 
 
@@ -47,13 +47,18 @@ fi
 
 # Start Docker Projects
 for project in "${projects[@]}"; do
+
+    if [[ ! -d "$project" ]]; then
+        echo -e "${RED}Skipping missing directory: $project${RESET}"
+        continue
+    fi
+
     echo -e "${GREEN}Running 'docker-compose $*' in $project${RESET}"
     case "$1" in
         "restart")
         (
             cd "$project" &&
             docker-compose down &&
-            docker-compose pull &&
             docker-compose up -d
         )
         ;;

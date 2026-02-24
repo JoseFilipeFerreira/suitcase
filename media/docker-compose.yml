@@ -29,8 +29,6 @@ services:
       caddy.reverse_proxy: "{{upstreams 8096}}"
       # Plato
       plato.category: "Media"
-      plato.subtitle: "Media Streaming"
-      plato.importance: 5
 
   jellystat:
     image: cyfershepard/jellystat:latest
@@ -51,9 +49,7 @@ services:
       - jellyfin
     restart: unless-stopped
     labels:
-      plato.category: "Infrastructure"
-      plato.subtitle: "Watch Stats"
-      plato.importance: 4
+      plato.category: "System"
 
   jellystat-postgres:
     image: postgres:15.2
@@ -92,9 +88,7 @@ services:
       caddy.basic_auth_1.jff: ${PASS1}
       caddy.basic_auth_1.nifernandes99: ${PASS2}
       # Plato
-      plato.category: "Botnet"
-      plato.subtitle: "Simple Webserver"
-      plato.importance: 5
+      plato.category: "Cloud"
 
   calibre-web:
     image: linuxserver/calibre-web:nightly
@@ -124,8 +118,6 @@ services:
       # Plato
       plato.category: "Media"
       plato.name: "Biblioteca dos Nhos"
-      plato.subtitle: "Book DB Frontend"
-      plato.importance: 3
 
   calibre:
     image: linuxserver/calibre:latest
@@ -141,10 +133,8 @@ services:
       - 8181:8181
     restart: unless-stopped
     labels:
-      plato.category: "Media"
-      plato.subtitle: "Book DB"
+      plato.category: "Download"
       plato.force-https: True
-      plato.importance: 2
 
   navidrome:
     image: deluan/navidrome
@@ -167,8 +157,6 @@ services:
       caddy.reverse_proxy: "{{upstreams 4533}}"
       # Plato
       plato.category: "Media"
-      plato.subtitle: "Music Streaming"
-      plato.importance: 0
 
 networks:
   default:

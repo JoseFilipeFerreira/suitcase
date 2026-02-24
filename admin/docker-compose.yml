@@ -25,7 +25,7 @@ services:
       - ${DATADIR}/plato/icons:/www/assets/icons
     environment:
       HOSTNAME: "kiwi"
-      CATEGORY_ICONS: "Botnet=fas fa-cloud, Media=fas fa-photo-video, Download=fas fa-download, Utilities=fas fa-toolbox, Infrastructure=fas fa-tasks-alt"
+      CATEGORY_ICONS: "Cloud=fas fa-cloud, Media=fas fa-photo-video, Download=fas fa-download, Tools=fas fa-toolbox, System=fas fa-tasks-alt"
       TITLE: "Kiwi dashboard"
       SUBTITLE: "Jff"
       LOGO: "assets/custom/logo.png"
@@ -51,10 +51,8 @@ services:
       - ${DATADIR}/speedtest-tracker/config:/config
     restart: unless-stopped
     labels:
-      plato.category: "Infrastructure"
+      plato.category: "System"
       plato.name: "Speedtest"
-      plato.subtitle: "Speed Tracker"
-      plato.importance: 3
 
   gotify:
     image: gotify/server
@@ -73,9 +71,7 @@ services:
       caddy: gotify.${WEBSITE}
       caddy.reverse_proxy: "{{upstreams 80}}"
       # Plato
-      plato.category: "Infrastructure"
-      plato.subtitle: "Send Notifications"
-      plato.importance: 6
+      plato.category: "System"
 
   scrutiny:
     container_name: scrutiny
@@ -95,9 +91,7 @@ services:
       - /dev/sdb
       - /dev/sdc
     labels:
-      plato.category: "Infrastructure"
-      plato.subtitle: "Disk Health"
-      plato.importance: 5
+      plato.category: "System"
 
   wg-easy:
     image: ghcr.io/wg-easy/wg-easy:15
@@ -139,11 +133,9 @@ services:
       caddy: vpn.${WEBSITE}
       caddy.reverse_proxy: "{{upstreams 51821}}"
       # Plato
-      plato.category: "Infrastructure"
+      plato.category: "Cloud"
       plato.name: "VPN"
-      plato.subtitle: "Wireguard VPN"
       plato.selfhst-icon: "wireguard"
-      plato.importance: 1
 
   dnsmasq:
     image: andyshinn/dnsmasq

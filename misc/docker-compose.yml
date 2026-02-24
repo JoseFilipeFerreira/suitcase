@@ -15,9 +15,7 @@ services:
       caddy: budget.${WEBSITE}
       caddy.reverse_proxy: "{{upstreams 5006}}"
       # Plato
-      plato.category: "Botnet"
-      plato.subtitle: "Manage Money"
-      plato.importance: 2
+      plato.category: "Cloud"
 
   jbb:
     image: josefilipeferreira/jbb.py
@@ -42,9 +40,7 @@ services:
       caddy: pdf.${WEBSITE}
       caddy.reverse_proxy: "{{upstreams 8080}}"
       # Plato
-      plato.category: "Utilities"
-      plato.subtitle: "PDF Operations"
-      plato.importance: 2
+      plato.category: "Tools"
 
   planning-poker:
     image: docker.io/axeleroy/self-host-planning-poker
@@ -60,10 +56,8 @@ services:
       caddy: poker.${WEBSITE}
       caddy.reverse_proxy: "{{upstreams 8000}}"
       # Plato
-      plato.category: "Utilities"
+      plato.category: "Tools"
       plato.name: "Poker"
-      plato.subtitle: "Planning Poker"
-      plato.importance: 1
 
 networks:
   caddy:

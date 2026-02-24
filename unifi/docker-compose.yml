@@ -21,6 +21,4 @@ services:
       - 5514:5514/udp #optional
     restart: always
     labels:
-      plato.category: "Infrastructure"
-      plato.subtitle: "Unifi Manager"
-      plato.importance: 7
+      plato.category: "System"
