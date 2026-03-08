@@ -170,7 +170,14 @@ services:
       FLARESOLVERR_ENABLED: true
       FLARESOLVERR_URL: "http://flaresolverr:8191"
     restart: unless-stopped
+    networks:
+      - caddy
+      - default
     labels:
+      # Caddy
+      caddy: manga.${WEBSITE}
+      caddy.reverse_proxy: "{{upstreams 4567}}"
+      # Plato
       plato.category: "Media"
 
 networks:
