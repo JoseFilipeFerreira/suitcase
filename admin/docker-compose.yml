@@ -148,6 +148,21 @@ services:
         ipv4_address: ${DNSMASQ_IP}
     restart: unless-stopped
 
+  fail2ban-dashboard:
+    image: ghcr.io/webishdev/fail2ban-dashboard:latest
+    container_name: fail2ban-dashboard
+    user: root
+    ports:
+      - 3033:3000
+    volumes:
+      - /var/run/fail2ban/fail2ban.sock:/var/run/fail2ban/fail2ban.sock:ro
+    restart: unless-stopped
+    labels:
+      # Plato
+      plato.category: "System"
+      plato.selfhst-icon: "fail2ban"
+
+
 networks:
   wg:
     driver: bridge
