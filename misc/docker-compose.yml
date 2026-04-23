@@ -28,7 +28,7 @@ services:
     restart: unless-stopped
 
   bentopdf:
-    image: ghcr.io/alam00000/bentopdf
+    image: ghcr.io/alam00000/bentopdf-simple
     container_name: bentopdf
     ports:
       - 3004:8080
@@ -58,6 +58,20 @@ services:
       # Plato
       plato.category: "Tools"
       plato.name: "Poker"
+
+  spoolman:
+    image: ghcr.io/donkie/spoolman
+    container_name: spoolman
+    restart: unless-stopped
+    volumes:
+      - ${DATADIR}/spoolman/data:/home/app/.local/share/spoolman
+    ports:
+      - 7912:8000
+    environment:
+      TZ: ${TZ}
+    labels:
+      # Plato
+      plato.category: "Tools"
 
 networks:
   caddy:
