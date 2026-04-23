@@ -119,6 +119,7 @@ services:
       # Plato
       plato.category: "Media"
       plato.name: "Biblioteca dos Nhos"
+      plato.endpoint: "books"
 
   calibre:
     image: linuxserver/calibre:latest
