@@ -131,6 +131,7 @@ services:
     volumes:
       - ${DATADIR}/calibre/config:/config
       - ${DATADIR}/calibre/import:/import
+      - ${DATADIR}/calibre/export:/export
     ports:
       - 8181:8181
     restart: unless-stopped

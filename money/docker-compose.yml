@@ -1,0 +1,40 @@
+services:
+
+  actual-budget:
+    image: actualbudget/actual-server:latest
+    container_name: actual-budget
+    restart: unless-stopped
+    ports:
+      - 5006:5006
+    volumes:
+      - ${DATADIR}/actual-server/data:/data
+    networks:
+      - caddy
+    labels:
+      # Caddy
+      caddy: budget.${WEBSITE}
+      caddy.reverse_proxy: "{{upstreams 5006}}"
+      # Plato
+      plato.category: "Cloud"
+
+  oinkoink:
+    image: josefilipeferreira/oinkoink
+    container_name: oinkoink
+    ports:
+      - 2122:5000
+    environment:
+      CALDAV_URL: ${OINKOINK_CALDAV_URL}
+      CALDAV_USERNAME: ${OINKOINK_CALDAV_USERNAME}
+      CALDAV_PASSWORD: ${OINKOINK_CALDAV_PASSWORD}
+      CALDAV_CALENDAR: ${OINKOINK_CALDAV_CALENDAR}
+    volumes:
+      - ${DATADIR}/oinkoink/config/shift_rates.yaml:/shift_rates.yaml:ro
+
+    restart: unless-stopped
+    labels:
+      # Plato
+      plato.category: "Tools"
+
+networks:
+  caddy:
+    external: true

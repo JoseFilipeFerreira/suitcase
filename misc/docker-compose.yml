@@ -1,22 +1,4 @@
 services:
-
-  actual-budget:
-    image: actualbudget/actual-server:latest
-    container_name: actual-budget
-    restart: unless-stopped
-    ports:
-      - 5006:5006
-    volumes:
-      - ${DATADIR}/actual-server/data:/data
-    networks:
-      - caddy
-    labels:
-      # Caddy
-      caddy: budget.${WEBSITE}
-      caddy.reverse_proxy: "{{upstreams 5006}}"
-      # Plato
-      plato.category: "Cloud"
-
   jbb:
     image: josefilipeferreira/jbb.py
     container_name: jbb

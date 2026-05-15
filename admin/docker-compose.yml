@@ -149,7 +149,7 @@ services:
     restart: unless-stopped
 
   fail2ban-dashboard:
-    image: ghcr.io/webishdev/fail2ban-dashboard:latest
+    image: ghcr.io/webishdev/fail2ban-dashboard
     container_name: fail2ban-dashboard
     user: root
     ports:

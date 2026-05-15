@@ -20,13 +20,14 @@ case "$(hostname)" in
     "kiwi")
         projects=(
             "admin"
-            "arrsuite"
-            "games"
             "homeassistant"
             "immich"
+            "money"
+            "nextcloud"
+            "arrsuite"
             "media"
             "misc"
-            "nextcloud"
+            "games"
         )
         ;;
     "lion")
