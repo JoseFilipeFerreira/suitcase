@@ -90,6 +90,7 @@ services:
       - /dev/sda
       - /dev/sdb
       - /dev/sdc
+      - /dev/sdd
     labels:
       plato.category: "System"
 
