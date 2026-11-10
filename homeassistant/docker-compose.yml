@@ -25,6 +25,20 @@ services:
       # Plato
       plato.category: "Cloud"
 
+  music-assistant:
+    image: ghcr.io/music-assistant/server
+    container_name: music-assistant
+    restart: unless-stopped
+    network_mode: host
+    volumes:
+      - ${DATADIR}/music-assistant-server/data:/data/
+      - ~/.local/share/music:/media:ro
+    environment:
+      - LOG_LEVEL=info
+    labels:
+      # Plato
+      plato.category: "Cloud"
+
   esphome:
     container_name: esphome
     image: ghcr.io/esphome/esphome
@@ -36,6 +50,9 @@ services:
     restart: always
     privileged: true
     network_mode: host
+    environment:
+      ESPHOME_USERNAME: ${ESPHOME_USERNAME}
+      ESPHOME_PASSWORD: ${ESPHOME_PASSWORD}
     labels:
       plato.category: "System"
 
