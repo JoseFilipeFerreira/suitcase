@@ -180,6 +180,23 @@ services:
       # Plato
       plato.category: "Media"
 
+  lidarr:
+    image: lscr.io/linuxserver/lidarr:latest
+    container_name: lidarr
+    environment:
+      PUID: ${PUID}
+      PGID: ${PGID}
+      TZ: ${TZ}
+    volumes:
+      - ${DATADIR}/lidarr/config:/config
+      - ${MEDIADIR}/music:/music
+      - ${DLDIR}:/downloads
+    ports:
+      - 8686:8686
+    restart: unless-stopped
+    labels:
+      plato.category: "Download"
+
 networks:
   default:
   caddy:
