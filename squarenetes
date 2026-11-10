@@ -8,6 +8,36 @@ GREEN='\033[0;32m'
 RED='\033[0;31m'
 RESET='\033[0m'
 
+usage() {
+    cat <<EOF
+Usage: $(basename "$0") <command> [arguments]
+
+Commands:
+  restart     Stop and start all containers using existing images.
+  update      Pull latest images and recreate containers if necessary.
+  recreate    Pull latest images and recreate all containers from scratch.
+
+  <command>   Pass any other command directly to docker-compose.
+
+Options:
+  -h, --help  Display this help message.
+EOF
+}
+
+# Help
+if [[ "${1:-}" == "-h" || "${1:-}" == "--help" || "${1:-}" == "help" ]]; then
+    usage
+    exit 0
+fi
+
+# Check Arguments
+if [[ $# -lt 1 ]]; then
+    echo -e "${RED}Error: Missing arguments${RESET}"
+    usage
+    exit 1
+fi
+
+
 # Check Caddy Docker Network
 NETWORK_NAME="caddy"
 if ! docker network ls --format '{{.Name}}' | grep -wq "$NETWORK_NAME"; then
@@ -67,6 +97,14 @@ for project in "${projects[@]}"; do
         (
             cd "$project" &&
             docker-compose pull &&
+            docker-compose up -d
+        )
+        ;;
+        "recreate")
+        (
+            cd "$project" &&
+            docker-compose pull &&
+            docker-compose down &&
             docker-compose up -d
         )
         ;;
