@@ -1,4 +1,17 @@
 services:
+  scadarina:
+    container_name: scadarina
+    image: josefilipeferreira/scadarina
+    restart: unless-stopped
+    ports:
+      - "5343:5000"
+    volumes:
+      - ${DATADIR}/scadarina/models:/app/models
+      - ${DATADIR}/scadarina/libraries:/root/.local/share/OpenSCAD/libraries
+    labels:
+      # Plato
+      plato.category: "Tools"
+
   jbb:
     image: josefilipeferreira/jbb.py
     container_name: jbb
